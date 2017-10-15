@@ -1,0 +1,125 @@
+/* Global ====================================== START */
+  * {
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .jumbotron h1 {
+    text-align: center;
+  }
+
+  .rrules_main_body {
+    width: 1100px;
+    margin: 20px auto;
+  }
+/* Global ====================================== END */
+
+/* Global ====================================== START */
+  .rrules_rules_area {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;    
+  }
+
+  .rrules_rule_info {
+    display: block;
+    width: 95%;
+    margin: 0 auto;
+    padding: 20px 60px;
+    background: #eafbff;
+    border: 3px solid #ff9f40;
+    border-radius: 4px;
+  }
+
+  .rrules_rule_name_label {
+    font-size: 20px;
+    color: #444;
+  }
+
+  .rrules_rule_name {
+    display: inline-block;
+    background: #ff9f40;
+    font-size: 22px;
+    font-weight: bold;
+    color: #FFF;
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin-left: 20px;
+  }
+
+  .rrules_rules_col {
+    display: inline-block;
+    width: 45%;
+    margin: 20px auto;  
+  }
+
+  .rrules_rules_title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 28px;
+    color: #999;
+  }
+
+  .rrules_rules_box {
+    width:  100%;
+    height: 550px;
+    padding: 14px 32px;
+    border: 2px solid #CCC;
+    border-radius:  2px;
+    overflow: auto;
+  }
+
+  .rrules_rule_item {
+    display: block;
+    margin: 8px;
+    padding: 8px 32px;
+    border: 1px solid #CCC;
+    border-radius: 6px;
+    background: #3cf;
+    color: #FFF;
+    height: 70px;
+    line-height: 36px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: move;
+    text-align: center;
+  }
+
+  .rrules_rule_item:hover {
+    background: #00abff;
+  }
+
+  .rrules_rules_definition .rrules_rule_item {
+    background: #1fca74;
+  }
+
+  .rrules_rules_definition .rrules_rule_item:hover {
+    background: #0ab931;
+  }
+
+  .rrules_rule_item:hover .rrules_rule_id {
+    font-size: 28px;
+  }
+
+  .rrules_rule_id {
+    display: inline-block;
+    width: 224px;
+    vertical-align: text-bottom;
+    text-align: left;
+  }
+
+  .rrules_rule_edit, .rrules_rule_delete {
+    font-size: 48px;
+    cursor: pointer;
+  }
+
+  .rrules_rule_edit {
+    vertical-align: bottom;
+  }
+
+  .rrules_rule_edit:hover, .rrules_rule_delete:hover {
+    color: #333;
+  }
+/* Global ====================================== END */
