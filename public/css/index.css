@@ -6,6 +6,10 @@
     display: none;
   }
 
+  .jumbotron {
+    height: 180px;
+  }
+
   .jumbotron h1 {
     text-align: center;
   }
@@ -16,7 +20,7 @@
   }
 /* Global ====================================== END */
 
-/* Global ====================================== START */
+/* Rules Info ====================================== START */
   .rrules_rules_area {
     display: -webkit-box;
     display: -ms-flexbox;
@@ -26,6 +30,7 @@
   .rrules_rule_info {
     display: block;
     width: 95%;
+    height: 84px;
     margin: 0 auto;
     padding: 20px 60px;
     background: #eafbff;
@@ -38,6 +43,17 @@
     color: #444;
   }
 
+  .rrules_rule_id_label{
+    display: inline-block;
+    height: 44px;
+    line-height: 44px;
+  }
+
+  .rrules_rule_hint {
+    font-style: italic;
+    font-size: 12px;
+  }
+
   .rrules_rule_name {
     display: inline-block;
     background: #ff9f40;
@@ -48,7 +64,9 @@
     padding: 6px 12px;
     margin-left: 20px;
   }
+/* Rules Info ====================================== END */
 
+/* Rules Panel ====================================== START */
   .rrules_rules_col {
     display: inline-block;
     width: 45%;
@@ -62,7 +80,7 @@
     color: #999;
   }
 
-  .rrules_rules_box {
+.rrules_rules_box {
     width:  100%;
     height: 550px;
     padding: 14px 32px;
@@ -87,7 +105,7 @@
     text-align: center;
   }
 
-  .rrules_rule_item:hover {
+  .rrules_rule_item:hover, .rrules_rule_item.selected {
     background: #00abff;
   }
 
@@ -95,19 +113,35 @@
     background: #1fca74;
   }
 
-  .rrules_rules_definition .rrules_rule_item:hover {
+  .rrules_rules_definition .rrules_rule_item:hover, .rrules_rules_definition .rrules_rule_item.selected {
     background: #0ab931;
   }
 
-  .rrules_rule_item:hover .rrules_rule_id {
+.rrules_rules_definition .rrules_rule_item.rrules_type_definition_used {
+  background: #88bf77;
+  cursor: default;
+}
+
+.rrules_used_hint {
+  display: inline-block;
+  width: 50px;
+  font-size:14px;
+  font-style: italic;
+}
+
+  .rrules_rule_item:hover .rrules_rule_id, .rrules_rule_item.selected .rrules_rule_id {
     font-size: 28px;
   }
 
   .rrules_rule_id {
     display: inline-block;
-    width: 224px;
+    width: 175px;
     vertical-align: text-bottom;
     text-align: left;
+  }
+
+  .rrules_rule_name_src {
+    display: none;
   }
 
   .rrules_rule_edit, .rrules_rule_delete {
@@ -122,4 +156,4 @@
   .rrules_rule_edit:hover, .rrules_rule_delete:hover {
     color: #333;
   }
-/* Global ====================================== END */
+/* Rules Panel ====================================== END */
