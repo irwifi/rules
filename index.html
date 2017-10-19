@@ -12,21 +12,47 @@
 <body>
   <div class="container-fluid">
     <div class="jumbotron">
-      <h1>Rules</h1> 
+      <h1>Rules</h1>
     </div>
 
   <div class="rrules_main_body">
+    <div class="rrules_group">
+      <span class="rrules_group_label">Group Name</span>
+      <span class="rrules_group_info">
+        <span class="rrules_group_info_name"></span>
+        <span class="rrules_group_info_severity_lavel">Severity<span class="rrules_group_info_severity">()</span></span>
+        <span class="rrules_group_info_edit">
+          <input type="button" name="rrules_group_info_edit" value="Edit">
+        </span>
+      </span>
+
+      <span class="rrules_group_edit">
+        <span class="rrules_group_name"><input type="text" name="rrules_group_name" /></span>
+        <span class="rrules_group_severity">
+          <select name="rrules_group_severity">
+          </select>
+        </span>
+        <span class="rrules_group_submit">
+          <input type="button" name="rrules_group_submit" value="Submit">
+        </span>
+        <span class="rrules_group_cancel">
+          <input type="button" name="rrules_group_cancel" value="Cancel">
+        </span>
+      </span>
+    </div>
+
     <div class="rrules_rule_info">
       <!-- Rules info panel -->
       <div class="rrules_rule_name_label">
-        <span class="rrules_rule_id_label">Rule Info</span> 
-        <span class="rrules_rule_hint">(hover on any rule)</span> 
-        <span class="rrules_rule_name hidden"></span></div>
+        <span class="rrules_rule_info_name">Rule Info</span>
+        <span class="rrules_rule_hint">(hover on any rule)</span>
+      </div>
     </div>
 
     <!-- Rules item sample, Sample is hidden, Rule items are cloned from sample -->
     <div class="rrules_rule_item hidden" id="rrules_rule_sample" data-rule-name="">
-      <span class="rrules_rule_id">Rule </span>
+      <span class="rrules_rule_name">Rule</span>
+      <span class='rrules_used_hint'> </span>
       <i class="rrules_rule_edit fa fa-edit" aria-hidden="true"></i>
       <i class="rrules_rule_delete fa fa-trash-o" aria-hidden="true"></i>
     </div>
@@ -34,18 +60,18 @@
     <div class="rrules_rules_area">
       <div class="rrules_rules_used rrules_rules_col">
         <div class="rrules_rules_title">Rules Used</div>
-        <div class="rrules_rules_box">
+        <div class="rrules_rules_box sortable1 connectedSortable">
         </div>
       </div>
 
       <div class="rrules_rules_definition rrules_rules_col">
         <div class="rrules_rules_title">Rules Definition</div>
-        <div class="rrules_rules_box">
+        <div class="rrules_rules_box sortable2 connectedSortable">
         </div>
       </div>
     </div>
   </div>
-  
+
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
