@@ -17,7 +17,12 @@
 
   <div class="rrules_main_body">
     <div class="rrules_group">
-      <span class="rrules_group_label">Group Name</span>
+      <div class="rrules_group_list">
+          <select name="group_list">
+            <option value = 0>Select Rule Group</option>
+          </select>
+      </div>
+      <span class="rrules_group_label" data-id="">Group Name</span>
       <span class="rrules_group_info">
         <span class="rrules_group_info_name"></span>
         <span class="rrules_group_info_severity_lavel">Severity<span class="rrules_group_info_severity">()</span></span>
@@ -33,7 +38,7 @@
           </select>
         </span>
         <span class="rrules_group_submit">
-          <input type="button" name="rrules_group_submit" value="Submit">
+          <input type="button" name="rrules_group_submit" value="Save">
         </span>
         <span class="rrules_group_cancel">
           <input type="button" name="rrules_group_cancel" value="Cancel">
@@ -59,14 +64,14 @@
 
     <div class="rrules_rules_area">
       <div class="rrules_rules_used rrules_rules_col">
-        <div class="rrules_rules_title">Rules Used</div>
         <div class="rrules_rules_box sortable1 connectedSortable">
+          <div class="rrules_rules_title">Rules Used</div>
         </div>
       </div>
 
       <div class="rrules_rules_definition rrules_rules_col">
-        <div class="rrules_rules_title">Rules Definition</div>
         <div class="rrules_rules_box sortable2 connectedSortable">
+          <div class="rrules_rules_title">Rules Definition</div>
         </div>
       </div>
     </div>
