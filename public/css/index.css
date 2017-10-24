@@ -63,17 +63,32 @@
     margin-right: 20px;
   }
 
-  .rrules_group_info_edit input {
-    width: 80px;
+  .rrules_group_buttons {
     height: 30px;
-    background: #ff9f40;
     color: #FFF;
     border-style: none;
   }
 
-  .rrules_group .rrules_group_info_edit input:hover {
+  .rrules_group_buttons:hover {
     font-weight: bold;
+  }
+
+  .rrules_group_info_edit input {
+    width: 80px;
+    background: #ff9f40;
+  }
+
+  .rrules_group .rrules_group_info_edit input:hover {
     background: #ff5e00;
+  }
+
+  .rrules_group_info_new input {
+    width: 80px;
+    background: #54b7ff;
+  }
+
+  .rrules_group_info_new input:hover {
+    background: #0012ff;
   }
 
   .rrules_group .rrules_group_edit {
@@ -95,27 +110,19 @@
 
   .rrules_group .rrules_group_submit input {
     width: 100px;
-    height: 30px;
     background: #ff9f40;
-    color: #FFF;
-    border-style: none;
   }
 
   .rrules_group .rrules_group_submit input:hover {
-    font-weight: bold;
     background: #ff5e00;
   }
 
   .rrules_group .rrules_group_cancel input {
     width: 100px;
-    height: 30px;
     background: #ff4040;
-    color: #FFF;
-    border-style: none;
  }
 
   .rrules_group .rrules_group_cancel input:hover {
-    font-weight: bold;
     background: #fb0000;
   }
 /* Rule Group ====================================== END */
@@ -258,3 +265,35 @@
     color: #333;
   }
 /* Rules Panel ====================================== END */
+
+/* Add Edit Rules Modal ====================================== START */
+  #edit_rule_modal .modal-body div {
+    margin: 30px;
+    text-align: center;
+  }
+
+  .rrules_edit_rule_name_row span, .rrules_edit_rule_desc_row span {
+    display: block;
+  }
+
+  .rrules_edit_rule_name_row input {
+    width: 750px;
+  }
+
+  .rrules_edit_rule_desc_row textarea {
+    resize: none;
+    width: 750px;
+    height: 80px;
+  }
+
+  .rrules_edit_rule_value_row span {
+    margin-left: 20px;
+    margin-right: 10px;
+  }
+
+  .rrules_edit_rule_value_row select {
+    width: 160px;
+    height: 30px;
+    margin-right: 20px;
+  }
+/* Add Edit Rules Modal ====================================== END */

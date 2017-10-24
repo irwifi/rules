@@ -27,7 +27,10 @@
         <span class="rrules_group_info_name"></span>
         <span class="rrules_group_info_severity_lavel">Severity<span class="rrules_group_info_severity">()</span></span>
         <span class="rrules_group_info_edit">
-          <input type="button" name="rrules_group_info_edit" value="Edit">
+          <input type="button" name="rrules_group_info_edit" value="Edit" class="rrules_group_buttons">
+        </span>
+        <span class="rrules_group_info_new">
+          <input type="button" name="rrules_group_info_new" value="New" class="rrules_group_buttons">
         </span>
       </span>
 
@@ -38,10 +41,10 @@
           </select>
         </span>
         <span class="rrules_group_submit">
-          <input type="button" name="rrules_group_submit" value="Save">
+          <input type="button" name="rrules_group_submit" value="Save" class="rrules_group_buttons">
         </span>
         <span class="rrules_group_cancel">
-          <input type="button" name="rrules_group_cancel" value="Cancel">
+          <input type="button" name="rrules_group_cancel" value="Cancel" class="rrules_group_buttons">
         </span>
       </span>
     </div>
@@ -58,7 +61,7 @@
     <div class="rrules_rule_item hidden" id="rrules_rule_sample" data-rule-name="">
       <span class="rrules_rule_name">Rule</span>
       <span class='rrules_used_hint'> </span>
-      <i class="rrules_rule_edit fa fa-edit" aria-hidden="true"></i>
+      <i class="rrules_rule_edit fa fa-edit" aria-hidden="true" data-toggle="modal" data-target="#edit_rule_modal"></i>
       <i class="rrules_rule_delete fa fa-trash-o" aria-hidden="true"></i>
     </div>
 
@@ -74,6 +77,52 @@
           <div class="rrules_rules_title">Rules Definition</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Add Edit Rule Modal -->
+  <div id="edit_rule_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Edit Rule</h4>
+        </div>
+        <div class="modal-body">
+          <div class="rrules_edit_rule_name_row">
+            <span>Rule Name</span>
+            <Input type="text">
+          </div>
+
+          <div class="rrules_edit_rule_desc_row">
+            <span>Rule Description</span>
+            <textarea></textarea>
+          </div>
+
+          <div class="rrules_edit_rule_value_row">
+            <span class="rrules_edit_rule_type">Rule Type</span>
+            <select name = "rrules_edit_rule_type">
+              <option value=""></option>
+            </select>
+            <span class="rrules_edit_rule_criteria">Criteria</span>
+            <select name = "rrules_edit_rule_criteria">
+              <option value=""></option>
+            </select>
+            <span class="rrules_edit_rule_value">Value</span>
+            <select name = "rrules_edit_rule_value">
+              <option value=""></option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success">Save</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
