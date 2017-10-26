@@ -91,6 +91,15 @@
     background: #0012ff;
   }
 
+  .rrules_group_info_delete input {
+    width: 80px;
+    background: #e8482c;
+  }
+
+  .rrules_group_info_delete input:hover {
+    background: #e60404;
+  }
+
   .rrules_group .rrules_group_edit {
     display: none;
   }
@@ -99,7 +108,7 @@
     width: 480px;
     height: 30px;
     margin-right: 20px;
-    padding-left:20px;
+    padding-left: 10px;
   }
 
   .rrules_group .rrules_group_severity select{
@@ -119,11 +128,11 @@
 
   .rrules_group .rrules_group_cancel input {
     width: 100px;
-    background: #ff4040;
+    background: #757575;
  }
 
   .rrules_group .rrules_group_cancel input:hover {
-    background: #fb0000;
+    background: #3c3b3b;
   }
 /* Rule Group ====================================== END */
 
@@ -152,6 +161,8 @@
     font-weight: bold;
     border-radius: 4px;
     padding: 6px 12px;
+    margin-top: -3px;
+    vertical-align: top;
   }
 
   .rrules_rule_info_name.on, .active .rrules_rule_info_name {
@@ -160,9 +171,13 @@
   }
 
   .rrules_rule_hint {
+    display: inline-block;
+    height: 60px;
+    overflow: auto;
+    margin-top: -10px;
     font-style: italic;
     font-size: 14px;
-    vertical-align: bottom;
+    padding: 0 10px;
   }
 /* Rules Info ====================================== END */
 
