@@ -330,6 +330,7 @@
   .rrules_edit_rule_name_row input {
     width: 750px;
     height: 32px;
+    padding-left:10px;
   }
 
   .rrules_edit_rule_desc_row textarea {
@@ -347,5 +348,9 @@
     width: 160px;
     height: 30px;
     margin-right: 20px;
+  }
+
+  .rrules_edit_rule_value input {
+    display: none;
   }
 /* Add Edit Rules Modal ====================================== END */

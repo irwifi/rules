@@ -61,7 +61,7 @@ function rrules_load_rules(group_id) {
     $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRules", function(rules) {
         $.each(rules, function(key, value) {
             // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
-            $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
+            $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-id": value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
             $("#rrules_rule_id_" + value.ID + " .rrules_rule_name").text(value.Name);
         });
 
@@ -112,7 +112,7 @@ function rrules_load_used_rules(used_rules) {
     $.each(used_rules, function(key, id) {
         var rule_name = $("#rrules_rule_id_" + id).attr("data-rule-name");
         var rule_desc = $("#rrules_rule_id_" + id).attr("data-rule-desc");
-        $("#rrules_rule_sample").clone().attr({ "id": "rrules_used_rule_id_" + id, "data-rule-name": rule_name, "data-rule-desc": rule_desc }).addClass("new rrules_type_used").removeClass("hidden").appendTo(".rrules_rules_used .rrules_rules_box");
+        $("#rrules_rule_sample").clone().attr({ "id": "rrules_used_rule_id_" + id, "data-rule-id": id, "data-rule-name": rule_name, "data-rule-desc": rule_desc }).addClass("new rrules_type_used").removeClass("hidden").appendTo(".rrules_rules_used .rrules_rules_box");
         $("#rrules_used_rule_id_" + id + " .rrules_rule_name").text(rule_name);
 
         // Mark used Rule in definition
@@ -422,33 +422,63 @@ function rrules_new_group() {
 // Add edit rule
 function rrules_add_edit_rule() {
     // On Edit Rule modal load
-    $('#edit_rule_modal').on('show.bs.modal', function() {
-        var rule_id =
+    $('#edit_rule_modal').on('show.bs.modal', function(e) {
+        var $trigger = $(e.relatedTarget);
+        var rule_id = $trigger.closest(".rrules_rule_item").attr("data-rule-id");
 
         // Get Rule info
         $.getJSON("http://tbc.etracinc.com:247/ais/Getruleinfo?RuleID=" + rule_id, function(data) {
+            var rule_name = data.Name;
+            var type_id = data.typeID;
+            var comparison_id = data.ComparisonID;
+            var condition_id = data.ConditionID;
+            var condition = data.Condition;
+            var option_selected = "";
 
-        // Get all Rule types
-        $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRuleTypes", function(type) {
-            $.each(type, function(key, value) {
-                $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_type']").append("<option value='" + value.ID + "'>" + value.Name + "</option>");
+            $(".rrules_edit_rule_name_row input").val(rule_name);
+            $(".rrules_edit_rule_value_row select").empty();
+
+            // Get all Rule types
+            $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRuleTypes", function(type) {
+                $.each(type, function(key, value) {
+                    if(value.ID === type_id) {
+                        option_selected = "selected='selected'";
+                    }
+                    $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_type']").append("<option value='" + value.ID + "' " + option_selected + ">" + value.Name + "</option>");
+                    option_selected = "";
+                });
             });
+
+            // Get Rule criteria from the URL
+            $.getJSON("http://tbc.etracinc.com:247/ais/getrulecomparison?TypeID=" + type_id, function(criteria) {
+                $.each(criteria, function(key, value) {
+                    if(value.ID === comparison_id) {
+                        option_selected = "selected='selected'";
+                    }
+                    $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_criteria']").append("<option value='" + value.ID + "' " + option_selected + ">" + value.Name + "</option>");
+                    option_selected = "";
+                });
+            });
+alert(condition);
+            if(condition_id) {
+                $(".rrules_edit_rule_value").siblings("select").show();
+                $(".rrules_edit_rule_value").siblings("input").hide();
+
+                // Get Rule value from the URL
+                $.getJSON("http://tbc.etracinc.com:247/ais/getrulevalues?TypeID=" + type_id, function(result) {
+                    $.each(result, function(key, value) {
+                        if(value.ID === condition_id) {
+                            option_selected = "selected='selected'";
+                        }
+                        $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_value']").append("<option value='" + value.ID + "' " + option_selected + ">" + value.Name + "</option>");
+                        option_selected = "";
+                    });
+                });
+            } else {alert(1);
+                $(".rrules_edit_rule_value").siblings("select").hide();
+                $(".rrules_edit_rule_value").siblings("input").show();
+            }
         });
-
-        // // Get Rule criteria from the URL
-        // $.getJSON("http://tbc.etracinc.com:247/ais/getrulecomparison?TypeID=<RuleType>", function(type) {
-        //     $.each(type, function(key, value) {
-        //         $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_criteria']").append("<option value='" + value.ID + "'>" + value.Name + "</option>");
-        //     });
-        // });
-
-        // // Get Rule value from the URL
-        // $.getJSON("http://tbc.etracinc.com:247/ais/getrulevalues?TypeID=<Rule ID>", function(type) {
-        //     $.each(type, function(key, value) {
-        //         $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_value']").append("<option value='" + value.ID + "'>" + value.Name + "</option>");
-        //     });
-        // });
-    });
      });
 }
 
