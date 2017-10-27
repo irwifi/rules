@@ -1,4 +1,4 @@
-var default_group = 1;
+var default_group = 1, loading_count = 0;
 
 $(function() {
     // Load Rule Group list
@@ -39,6 +39,10 @@ function rrules_reload_group(group_id) {
         group_id = $(".rrules_group_list select").val();
     }
     var current_group_id = $(".rrules_group_label").attr("data-id");
+
+    // Show loading overlay
+    rrules_show_loading(2, 1)
+
     if (group_id > 0 && group_id !== current_group_id) {
         $('.rrules_group_list select option:eq(0)').prop('selected', true);
         $(".rrules_rules_box div:not(.rrules_rules_title)").remove();
@@ -50,6 +54,9 @@ function rrules_reload_group(group_id) {
 
 // Load the rules
 function rrules_load_rules(group_id) {
+    // Show loading overlay
+    rrules_show_loading(2, 1)
+
     // Get Rule details from the URL link
     $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRules", function(rules) {
         $.each(rules, function(key, value) {
@@ -74,12 +81,17 @@ function rrules_load_rule_group(group_id) {
                 if (value.ID === data.Severity) {
                     option_html = option_html + ' selected = "selected"';
                     $(".rrules_group_info_severity").text("(" + value.Name + ")");
+                    $(".rrules_group_severity").attr("data-id", value.ID);
                 }
                 option_html = option_html + ">" + value.Name + "</option>";
                 $(".rrules_group_severity select").append(option_html);
             });
+            // Close loading overlay
+            rrules_close_loading();
         });
 
+        $(".rrules_group_info").show();
+        $(".rrules_group_edit").removeClass("add_new").hide();
         $(".rrules_group_label").attr({ "data-id": group_id })
         $(".rrules_group_info_name").text(data.Name);
         $(".rrules_group_name input").val(data.Name);
@@ -109,6 +121,9 @@ function rrules_load_used_rules(used_rules) {
         // Hide used Rule in definition
         rrules_hide_used_rule(id);
     });
+
+    // Close loading overlay
+    rrules_close_loading();
 }
 
 // Mark used Rule in definition
@@ -155,19 +170,13 @@ function rrules_group_events() {
     $(".rrules_group_list select").on("change", function() {rrules_reload_group(0);});
 
     // Edit Group button
-    $(".rrules_group_info_edit input").on("click", function() {
-        $(".rrules_group_info").hide();
-        $(".rrules_group_edit").show();
-    });
+    $(".rrules_group_info_edit input").on("click", rrules_group_info_toggle);
 
     // New Group button
     $(".rrules_group_info_new input").on("click", rrules_new_group);
 
     // Cancel Group add edit
-    $(".rrules_group_cancel input").on("click", function() {
-        $(".rrules_group_info").show();
-        $(".rrules_group_edit").hide();
-    });
+    $(".rrules_group_cancel input").on("click", rrules_cancel_group );
 
     // Save Group add edit
     $(".rrules_group_submit input").on("click", rrules_add_edit_group);
@@ -284,11 +293,64 @@ function rrules_remove_used_rule(element) {
     });
 }
 
+// Show loading overlay
+function rrules_show_loading(load_count, opacity) {
+    loading_count = load_count;
+    $(".loader").show();
+    $(".loading_overlay").css({"opacity": opacity});
+}
+
+// Close loading overlay
+function rrules_close_loading() {
+    loading_count--;
+    if(loading_count < 1) {
+        $(".loader").css({"opacity": 1}).fadeOut();
+    }
+}
+
+function rrules_group_info_toggle() {
+    $(".rrules_group_info").hide();
+    $(".rrules_group_edit").show();
+}
+
+// Cancel Group add/edit
+function rrules_cancel_group() {
+    $(".rrules_group_info").show();
+    $(".rrules_group_edit").hide();
+
+    if($(".rrules_group_edit").hasClass("add_new")) {
+        var current_group_id = $(".rrules_group_label").attr("data-id");
+        $(".rrules_group_label").attr({"data-id": 0});
+        rrules_reload_group(current_group_id);
+    } else {
+        $(".rrules_group_name input").val($(".rrules_group_info_name").text());
+        $(".rrules_group_severity select").val($(".rrules_group_severity").attr("data-id"));
+    }
+}
+
 // Rule Group add/edit
 function rrules_add_edit_group() {
+    var err = 0;
     var group_id = $(".rrules_group_label").attr("data-id");
     var group_name = $(".rrules_group_name input").val();
     var group_severity = $(".rrules_group_severity select").val();
+    if(group_name.trim() === "") {
+        toastr.error('Rule Group name is blank.', 'Error Alert', {});
+        err = 1;
+    }
+
+    if(isNaN(parseInt(group_severity))) {
+        toastr.error('Rule Group severity is blank.', 'Error Alert', {});
+        err = 1;
+    }
+
+    if(err === 1) {
+        return 0;
+    }
+
+    // Show loading overlay
+    rrules_show_loading(0, 0.5);
+
     var severity_name;
     $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRuleSeverity", function(severity) {
         $.each(severity, function(key, value) {
@@ -296,6 +358,9 @@ function rrules_add_edit_group() {
                 severity_name = value.Name;
 
                 if($(".rrules_group_edit").hasClass("add_new")) {
+                    // Show loading overlay
+                    rrules_show_loading(2, 1);
+
                     // Add new Rule Group
                     $(".rrules_group_edit").removeClass("add_new");
 
@@ -316,6 +381,7 @@ function rrules_add_edit_group() {
                     $(".rrules_group_severity select").val(group_severity);
                     $(".rrules_group_info_severity").text("(" + severity_name + ")");
                     $( ".rrules_group_cancel input" ).trigger( "click" );
+                    rrules_close_loading();
                     toastr.success('Rule Group Detail Successfully Updated.', 'Success Alert', {});
                 }
                 return false;
@@ -331,6 +397,8 @@ function rrules_group_delete() {
 
     $("#dialog_modal .btn_yes").off();
     $("#dialog_modal .btn_yes").on("click", function() {
+        // Show loading overlay
+        rrules_show_loading(2, 1);
         // Delete Rule Groups
         $.getJSON("http://tbc.etracinc.com:247/ais/removerulegroup?GroupID=" + group_id, function(data) { });
 
@@ -355,7 +423,12 @@ function rrules_new_group() {
 function rrules_add_edit_rule() {
     // On Edit Rule modal load
     $('#edit_rule_modal').on('show.bs.modal', function() {
-        // Get Rule type from the URL
+        var rule_id =
+
+        // Get Rule info
+        $.getJSON("http://tbc.etracinc.com:247/ais/Getruleinfo?RuleID=" + rule_id, function(data) {
+
+        // Get all Rule types
         $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRuleTypes", function(type) {
             $.each(type, function(key, value) {
                 $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_type']").append("<option value='" + value.ID + "'>" + value.Name + "</option>");
@@ -376,6 +449,7 @@ function rrules_add_edit_rule() {
         //     });
         // });
     });
+     });
 }
 
 // Toaster alert messages
