@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Rules</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
@@ -12,76 +12,80 @@
 
 <body>
   <div class="loader loading_overlay"></div>
-  <div class="loader loading"></div>
+  <div class="loader loading">
+    <h1>
+      <span class="let1">l</span>
+      <span class="let2">o</span>
+      <span class="let3">a</span>
+      <span class="let4">d</span>
+      <span class="let5">i</span>
+      <span class="let6">n</span>
+      <span class="let7">g</span>
+    </h1>
+  </div>
 
   <div class="container-fluid">
-<!--     <div class="jumbotron">
-      <h1>Rules</h1>
-    </div> -->
+    <div class="rrules_main_body">
+      <div class="rrules_group">
+        <span class="rrules_group_label" data-id="">Group</span>
+        <span class="rrules_group_info">
+          <span class="rrules_group_info_name"></span>
+          <i class="rrules_group_arrow fa fa-chevron-down" aria-hidden="true"></i>
+          <span class="rrules_group_info_severity_lavel">Severity<span class="rrules_group_info_severity">()</span></span>
 
-  <div class="rrules_main_body">
-    <div class="rrules_group">
-      <div class="rrules_group_list">
-          <select name="group_list">
-            <option value = 0>Select Rule Group</option>
-          </select>
+          <span class="rrules_group_info_delete">
+            <input type="button" name="rrules_group_info_delete" value="Delete" class="rrules_group_buttons">
+          </span>
+          <span class="rrules_group_info_edit">
+            <input type="button" name="rrules_group_info_edit" value="Edit" class="rrules_group_buttons">
+          </span>
+          <span class="rrules_group_info_new">
+            <input type="button" name="rrules_group_info_new" value="New" class="rrules_group_buttons">
+          </span>
+        </span>
+
+        <span class="rrules_group_edit">
+          <span class="rrules_group_name"><input type="text" name="rrules_group_name" /></span>
+          <span class="rrules_group_severity">
+            <select name="rrules_group_severity">
+            </select>
+          </span>
+          <span class="rrules_group_cancel">
+            <input type="button" name="rrules_group_cancel" value="Cancel" class="rrules_group_buttons">
+          </span>
+          <span class="rrules_group_submit">
+            <input type="button" name="rrules_group_submit" value="Save" class="rrules_group_buttons">
+          </span>
+        </span>
       </div>
-      <span class="rrules_group_label" data-id="">Group Name</span>
-      <span class="rrules_group_info">
-        <span class="rrules_group_info_name"></span>
-        <span class="rrules_group_info_severity_lavel">Severity<span class="rrules_group_info_severity">()</span></span>
-        <span class="rrules_group_info_edit">
-          <input type="button" name="rrules_group_info_edit" value="Edit" class="rrules_group_buttons">
-        </span>
-        <span class="rrules_group_info_new">
-          <input type="button" name="rrules_group_info_new" value="New" class="rrules_group_buttons">
-        </span>
-        <span class="rrules_group_info_delete">
-          <input type="button" name="rrules_group_info_delete" value="Delete" class="rrules_group_buttons">
-        </span>
-      </span>
 
-      <span class="rrules_group_edit">
-        <span class="rrules_group_name"><input type="text" name="rrules_group_name" /></span>
-        <span class="rrules_group_severity">
-          <select name="rrules_group_severity">
-          </select>
-        </span>
-        <span class="rrules_group_submit">
-          <input type="button" name="rrules_group_submit" value="Save" class="rrules_group_buttons">
-        </span>
-        <span class="rrules_group_cancel">
-          <input type="button" name="rrules_group_cancel" value="Cancel" class="rrules_group_buttons">
-        </span>
-      </span>
-    </div>
-
-    <div class="rrules_rule_info">
-      <!-- Rules info panel -->
-      <div class="rrules_rule_name_label">
-        <span class="rrules_rule_info_name">Rule Info</span>
-        <span class="rrules_rule_hint">(hover on any rule)</span>
-      </div>
-    </div>
-
-    <!-- Rules item sample, Sample is hidden, Rule items are cloned from sample -->
-    <div class="rrules_rule_item hidden" id="rrules_rule_sample" data-rule-name="">
-      <span class="rrules_rule_name">Rule</span>
-      <span class='rrules_used_hint'> </span>
-      <i class="rrules_rule_edit fa fa-edit" aria-hidden="true" data-toggle="modal" data-target="#edit_rule_modal"></i>
-      <i class="rrules_rule_delete fa fa-trash-o" aria-hidden="true"></i>
-    </div>
-
-    <div class="rrules_rules_area">
-      <div class="rrules_rules_used rrules_rules_col">
-        <div class="rrules_rules_box sortable1 connectedSortable">
-          <div class="rrules_rules_title">Rules Used</div>
+      <div class="rrules_rule_info">
+        <!-- Rules info panel -->
+        <div class="rrules_rule_name_label">
+          <span class="rrules_rule_info_name">Rule Info</span>
+          <span class="rrules_rule_hint">(hover on any rule)</span>
         </div>
       </div>
 
-      <div class="rrules_rules_definition rrules_rules_col">
-        <div class="rrules_rules_box sortable2 connectedSortable">
-          <div class="rrules_rules_title">Rules Definition</div>
+      <!-- Rules item sample, Sample is hidden, Rule items are cloned from sample -->
+      <div class="rrules_rule_item hidden" id="rrules_rule_sample" data-rule-name="">
+        <span class="rrules_rule_name">Rule</span>
+        <span class='rrules_used_hint'> </span>
+        <i class="rrules_rule_edit fa fa-edit" aria-hidden="true" data-toggle="modal" data-target="#edit_rule_modal"></i>
+        <i class="rrules_rule_delete fa fa-trash-o" aria-hidden="true"></i>
+      </div>
+
+      <div class="rrules_rules_area">
+        <div class="rrules_rules_used rrules_rules_col">
+          <div class="rrules_rules_box sortable1 connectedSortable">
+            <div class="rrules_rules_title">Rules Used</div>
+          </div>
+        </div>
+
+        <div class="rrules_rules_definition rrules_rules_col">
+          <div class="rrules_rules_box sortable2 connectedSortable">
+            <div class="rrules_rules_title">Rules Definition</div>
+          </div>
         </div>
       </div>
     </div>
@@ -147,6 +151,14 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <div class="rrules_group_list_panel">
+    <div class="rrules_group_list_intermediate">
+      <div class="rrules_group_list">
+        <i class="fa fa-times-circle rrules_group_list_close" aria-hidden="true"></i>
+      </div>
     </div>
   </div>
 

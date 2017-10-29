@@ -10,86 +10,140 @@
     padding: 0;
   }
 
-  .jumbotron {
-    height: 120px;
-    margin-bottom: 3px;
-  }
-
-  .jumbotron h1 {
-    text-align: center;
-    margin-top: 2px;
-    line-height: 20px;
-  }
-
   .rrules_main_body {
     width: 1300px;
     margin: 15px auto;
-    margin-top: 0;
+    margin-top: 60px;
   }
 
   .loading_overlay {
     position: fixed;
     width: 100%;
     height: 100%;
-    /*margin-top: 120px;*/
     background: #FFF;
     z-index: 2000;
   }
 
   .loading {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    z-index: 2001;
-    width: 150px;
-    height: 150px;
-    margin: -75px 0 0 -75px;
-    border: 16px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 16px solid #3498db;
-    width: 120px;
-    height: 120px;
-    -webkit-animation: spin 2s linear infinite;
-    animation: spin 2s linear infinite;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 2001;
+      margin: -110px 0 0 -78px;
+    }
+
+    .loading h1 {
+    margin: 0;
+    padding: 0;
+    font-family: ‘Arial Narrow’, sans-serif;
+    font-weight: 200;
+    font-size: 1.8em;
+    color: #36b9dc;
   }
 
-  @-webkit-keyframes spin {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
+  .loading span {
+    position: relative;
+    top: 0.63em;
+    display: inline-block;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: rotateX(-90deg);
   }
 
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  .let1 {
+    animation: drop 1.2s ease-in-out infinite;
+    animation-delay: 0.2s;
+  }
+
+  .let2 {
+    animation: drop 1.2s ease-in-out infinite;
+    animation-delay: 0.3s;
+  }
+
+  .let3 {
+    animation: drop 1.2s ease-in-out infinite;
+    animation-delay: 0.4s;
+  }
+
+  .let4 {
+    animation: drop 1.2s ease-in-out infinite;
+    animation-delay: 0.5s;
+
+  }
+
+  .let5 {
+    animation: drop 1.2s ease-in-out infinite;
+    animation-delay: 0.6s;
+  }
+
+  .let6 {
+    animation: drop 1.2s ease-in-out infinite;
+    animation-delay: 0.7s;
+  }
+
+  .let7 {
+    animation: drop 1.2s ease-in-out infinite;
+    animation-delay: 0.8s;
+  }
+
+  @keyframes drop {
+      10% {
+          opacity: 0.5;
+      }
+      20% {
+          opacity: 1;
+          top: 3.78em;
+          transform: rotateX(-360deg);
+      }
+      80% {
+          opacity: 1;
+          top: 3.78em;
+          transform: rotateX(-360deg);
+      }
+      90% {
+          opacity: 0.5;
+      }
+      100% {
+          opacity: 0;
+          top: 6.94em
+      }
   }
 /* Global ====================================== END */
 
 /* Rule Group ====================================== START */
   .rrules_group {
     display: block;
-    height: 80px;
+    height: 40px;
     margin: 0 36px;
-    padding: 0 40px;
-  }
-
-  .rrules_group .rrules_group_list select {
-    margin-bottom: 10px;
-    width: 400px;
-    height: 24px;
-    padding-left: 10px;;
   }
 
   .rrules_group .rrules_group_label {
     font-size: 18px;
     color:#444;
-    margin-right: 30px;
+    margin-right: 20px;
   }
 
   .rrules_group .rrules_group_info_name {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     color: #ff9f40;
-    margin-right: 12px;
+  }
+
+  .rrules_group_arrow {
+    margin-right: 20px;
+    padding: 8px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #3cf;
+    border:  1px solid #FFF;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .rrules_group_arrow:hover {
+    color: #FFF;
+    border:  1px solid #ff5b00;
+    background: #3cf;
   }
 
   .rrules_group_info_severity {
@@ -100,9 +154,12 @@
   }
 
   .rrules_group_buttons {
+    float: right;
     height: 30px;
     color: #FFF;
     border-style: none;
+    margin-left: 6px;
+    border-radius: 4px;
   }
 
   .rrules_group_buttons:hover {
@@ -169,6 +226,58 @@
 
   .rrules_group .rrules_group_cancel input:hover {
     background: #3c3b3b;
+  }
+
+  .rrules_group_list_panel {
+    display: none;
+    position: absolute;
+    top: 103px;
+    width: 100%;
+  }
+
+  .rrules_group_list_intermediate {
+    width: 1300px;
+    margin: auto;
+  }
+
+  .rrules_group_list {
+    width: fit-content;
+    margin-left: 80px;
+    border: 1px solid #3cf;
+    border-radius: 2px;
+    padding: 4px 28px;
+    font-size: 16px;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .rrules_group_list div {
+    display: block;
+    margin: 6px 2px;
+    padding: 4px 8px;
+    font-size: 16px;
+    border: 1px solid #FFF;
+    border-radius: 4px;
+    background: #00abff;
+    color: #FFF;
+    cursor: pointer;
+    width: 400px;
+    text-align: center;
+  }
+
+  .rrules_group_list div.active {
+    display: none;
+  }
+
+  .rrules_group_list div:hover {
+    font-size: 18px;
+    background: #2788ef;
+  }
+
+  .rrules_group_list_close {
+    float: right;
+    margin-right: -20px;
+    color: #ffffff;
+    cursor: pointer;
   }
 /* Rule Group ====================================== END */
 
@@ -239,7 +348,7 @@
 
   .rrules_rules_box {
     width:  100%;
-    height: 670px;
+    height: 560px;
     padding: 14px 32px;
     border: 2px solid #CCC;
     border-radius:  8px;

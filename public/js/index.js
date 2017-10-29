@@ -1,20 +1,14 @@
 var default_group = 1, loading_count = 0;
 
 $(function() {
-    // Load Rule Group list
-    rrules_load_group_list();
-
     // Load the rules,  Default Group Id = 1
-    rrules_load_rules(default_group);
+    rrules_load_rules(true, default_group);
 
     // Drop Rules to used rule area
     rrules_drop_to_used();
 
     // Drop Rules to rule definition
     rrules_drop_to_definition();
-
-    // Load Rule Group events
-    rrules_group_events();
 
     // Add edit rule
     rrules_add_edit_rule();
@@ -24,36 +18,43 @@ $(function() {
 });
 
 // Load Rule Group list
-function rrules_load_group_list() {
-    // Get Rule Groups from the URL link
-    $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRuleGroups", function(groups) {
-        $.each(groups, function(key, value) {
-            $(".rrules_group_list select").append("<option value='" + value.ID + "'>" + value.Name + "</option>");
+function rrules_load_group_list(group_id) {
+    $(".rrules_group_list_panel").hide();
+    if($(".rrules_group_list").children().length === 1) {
+        var active = "";
+        // Get Rule Groups from the URL link
+        $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRuleGroups", function(groups) {
+            $.each(groups, function(key, value) {
+                if(value.ID === group_id) {active = ' class="active"'};
+                $(".rrules_group_list").append("<div data-id='" + value.ID + "'" + active + ">" + value.Name + "</div>");
+                active = "";
+            });
         });
-    });
+    }
 }
 
 // Reload Rule Group
 function rrules_reload_group(group_id) {
     if(group_id === 0) {
-        group_id = $(".rrules_group_list select").val();
+        group_id = $(".rrules_group_list div.active").attr("data-id");
     }
-    var current_group_id = $(".rrules_group_label").attr("data-id");
 
     // Show loading overlay
     rrules_show_loading(2, 1)
 
-    if (group_id > 0 && group_id !== current_group_id) {
-        $('.rrules_group_list select option:eq(0)').prop('selected', true);
-        $(".rrules_rules_box div:not(.rrules_rules_title)").remove();
-        $(".rrules_group_severity select").empty(); // so that same options are not added every time
-        // Load the rules of Group
-        rrules_load_rules(group_id);
-    }
+    $(".rrules_group_list div.active").removeClass("active");
+    $(".rrules_group_list div[data-id='"+group_id+"']").addClass("active");
+    $(".rrules_rules_box div:not(.rrules_rules_title)").remove();
+    $(".rrules_group_severity select").empty(); // so that same options are not added every time
+    // Load the rules of Group
+    rrules_load_rules(false, group_id);
 }
 
 // Load the rules
-function rrules_load_rules(group_id) {
+function rrules_load_rules(first_load, group_id) {
+    // Load Rule Group list
+    rrules_load_group_list(group_id);
+
     // Show loading overlay
     rrules_show_loading(2, 1)
 
@@ -66,12 +67,12 @@ function rrules_load_rules(group_id) {
         });
 
         // Load the rule group
-        rrules_load_rule_group(group_id);
+        rrules_load_rule_group(first_load, group_id);
     });
 }
 
 // Load the rule group
-function rrules_load_rule_group(group_id) {
+function rrules_load_rule_group(first_load, group_id) {
     // Load Rule Group details
     $.getJSON("http://tbc.etracinc.com:247/AIS/GetRuleGroupInfo?GroupID=" + group_id, function(data) {
         // Get Rule Group Severity from the URL link
@@ -95,6 +96,11 @@ function rrules_load_rule_group(group_id) {
         $(".rrules_group_label").attr({ "data-id": group_id })
         $(".rrules_group_info_name").text(data.Name);
         $(".rrules_group_name input").val(data.Name);
+
+        if(first_load === true) {
+            // Load Rule Group events
+            rrules_group_events();
+        }
 
         // Load used Rules
         rrules_load_used_rules(data.RulesID);
@@ -167,7 +173,7 @@ function rrules_load_rules_events() {
 // Load Rule Group events
 function rrules_group_events() {
     // Select Rule Group from the dropdown
-    $(".rrules_group_list select").on("change", function() {rrules_reload_group(0);});
+    $(".rrules_group_list div").on("click", function() {rrules_reload_group($(this).attr("data-id"));});
 
     // Edit Group button
     $(".rrules_group_info_edit input").on("click", rrules_group_info_toggle);
@@ -183,6 +189,14 @@ function rrules_group_events() {
 
     // Delete Group
     $(".rrules_group_info_delete input").on("click", rrules_group_delete);
+
+    // Toggle Group list
+    $(".rrules_group_arrow").on("click", function() {
+        $(".rrules_group_list_panel").toggle();
+    });
+    $(".rrules_group_list").on("click", function() {
+        $(".rrules_group_list_panel").hide();
+    });
 }
 
 // Hover event on Rule item
@@ -297,7 +311,7 @@ function rrules_remove_used_rule(element) {
 function rrules_show_loading(load_count, opacity) {
     loading_count = load_count;
     $(".loader").show();
-    $(".loading_overlay").css({"opacity": opacity});
+    $(".loading_overlay").css({"opacity": 1});
 }
 
 // Close loading overlay
@@ -371,7 +385,8 @@ function rrules_add_edit_group() {
                          rrules_reload_group(new_id);
                          toastr.success('New Rule Group Successfully Added.', 'Success Alert', {});
                           $( ".rrules_group_cancel input" ).trigger( "click" );
-                         $(".rrules_group_list select").append('<option value="' + new_id + '">' + group_name + '</option>');
+                         $(".rrules_group_list").append('<div data-id="' + new_id + '" class="active">' + group_name + '</div>');
+                         $(".rrules_group_list div[data-id='" + new_id + "']").on("click", function() {rrules_reload_group($(this).attr("data-id"));});
                     });
                 } else {
                     // Update Rule Group detail
@@ -403,7 +418,7 @@ function rrules_group_delete() {
         $.getJSON("http://tbc.etracinc.com:247/ais/removerulegroup?GroupID=" + group_id, function(data) { });
 
         $('#dialog_modal').modal('hide');
-        $(".rrules_group_list select option[value='" + group_id + "']").remove();
+        $(".rrules_group_list div.active").remove();
         rrules_reload_group(default_group);
         toastr.success('Rule Group Successfully Deleted.', 'Success Alert', {});
     });
