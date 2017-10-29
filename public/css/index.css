@@ -347,8 +347,9 @@
   }
 
   .rrules_rules_box {
+    position: relative;
     width:  100%;
-    height: 560px;
+    height: 600px;
     padding: 14px 32px;
     border: 2px solid #CCC;
     border-radius:  8px;
@@ -396,7 +397,7 @@
 
   .rrules_rule_name {
     display: inline-block;
-    width: 320px;
+    width: 305px;
     height: 36px;
     vertical-align: text-bottom;
     text-align: left;
@@ -423,6 +424,22 @@
 
   .rrules_rule_edit:hover, .rrules_rule_delete:hover {
     color: #333;
+  }
+
+  .rrules_rules_definition .rrules_rule_item.add_new_rule {
+    position: sticky;
+    bottom: 0px;
+    background: #c9efd1;
+    border: 3px dashed #85c793;
+    cursor: pointer;
+    font-size: 40px;
+    line-height: 48px;
+    color: #85c793;
+  }
+
+  .rrules_rules_definition .rrules_rule_item.add_new_rule:hover {
+    font-size: 50px;
+    color: #266f36;
   }
 /* Rules Panel ====================================== END */
 
@@ -459,7 +476,7 @@
     margin-right: 20px;
   }
 
-  .rrules_edit_rule_value input {
+  .rrules_edit_rule_value_row input {
     display: none;
   }
 /* Add Edit Rules Modal ====================================== END */
