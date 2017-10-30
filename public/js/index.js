@@ -151,16 +151,16 @@ function rrules_hide_used_rule(rule_id) {
 
 // Add New Rule Button
 function rrules_add_rule_button() {
-     $("#rrules_rule_sample").clone().addClass("add_new_rule").removeClass("hidden").empty().appendTo(".rrules_rules_box.sortable2");
-     $(".add_new_rule").append('<i class="fa fa-plus-circle" aria-hidden="true"></i>').off();
-     $(".add_new_rule").on("click", function() {$('#edit_rule_modal').modal('show');});
+    $("#rrules_rule_sample").clone().addClass("add_new_rule").removeClass("hidden").empty().appendTo(".rrules_rules_box.sortable2");
+    $(".add_new_rule").append('<i class="fa fa-plus-circle" aria-hidden="true"></i>').off();
+    $(".add_new_rule").on("click", function() {$('#edit_rule_modal').modal('show');});
 }
 
 // Load Rule events
 function rrules_load_rules_events() {
     // Clear existing events
     $(".rrules_rule_item.new").off();
-    $(".rrules_rules_used .rrules_rule_item.new .rrules_rule_delete").off();
+    $(".rrules_rule_item.new .rrules_rule_delete").off();
 
     // Hover and unhover events on Rule item
     $(".rrules_rule_item.new").hover(rrules_rule_hover, rrules_rule_unhover);
@@ -182,6 +182,25 @@ function rrules_load_rules_events() {
         event.stopPropagation();
 
         var element = $(this).closest(".rrules_rule_item");
+        var rule_id = element.attr("data-rule-id");
+
+        $("#dialog_modal").modal();
+        $("#dialog_modal .modal-body").text("Are you sure you want to delete this Rule?");
+
+        $("#dialog_modal .btn_yes").off();
+        $("#dialog_modal .btn_yes").on("click", function() {
+            // Delete Rule Groups
+            $.getJSON("http://tbc.etracinc.com:247/ais/removerule?RuleID=" + rule_id, function(data) { });
+
+            $('#dialog_modal').modal('hide');
+            element.remove();
+            if (element.hasClass("selected") === true) {
+                // Reset Rule info panel
+                $(".rrules_rule_name_label").removeClass("active");
+            }
+            rrules_rule_unhover();
+            toastr.success('Rule Successfully Deleted.', 'Success Alert', {});
+        });
     });
 
     // Remove class .new from New items
@@ -212,7 +231,9 @@ function rrules_group_events() {
     $(".rrules_group_arrow").on("click", function() {
         $(".rrules_group_list_panel").toggle();
     });
-    $(".rrules_group_list").on("click", function() {
+
+    // Close Group list on Group button click
+    $(".rrules_group_list, .rrules_group_buttons").on("click", function() {
         $(".rrules_group_list_panel").hide();
     });
 }
@@ -427,6 +448,7 @@ function rrules_add_edit_group() {
 function rrules_group_delete() {
     var group_id = $(".rrules_group_label").attr("data-id");
     $("#dialog_modal").modal();
+    $("#dialog_modal .modal-body").text("Are you sure you want to delete this Rule Group?");
 
     $("#dialog_modal .btn_yes").off();
     $("#dialog_modal .btn_yes").on("click", function() {
@@ -610,6 +632,7 @@ function rrules_submit_rule_edit() {
 
                 $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + new_id, "data-rule-id": new_id, "data-rule-name": new_rule_name, "data-rule-desc": new_rule_desc }).addClass("rrules_type_definition").removeClass("hidden").insertBefore(".add_new_rule");
                 $("#rrules_rule_id_" + new_id + " .rrules_rule_name").text(new_rule_name);
+                // $("").on("click", function() {});
             });
             toastr_msg = 'New Rule Added Successfully.';
         }
