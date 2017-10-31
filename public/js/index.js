@@ -189,17 +189,23 @@ function rrules_load_rules_events() {
 
         $("#dialog_modal .btn_yes").off();
         $("#dialog_modal .btn_yes").on("click", function() {
+            rrules_show_loading(0,1);
             // Delete Rule Groups
-            $.getJSON("http://tbc.etracinc.com:247/ais/removerule?RuleID=" + rule_id, function(data) { });
-
-            $('#dialog_modal').modal('hide');
-            element.remove();
-            if (element.hasClass("selected") === true) {
-                // Reset Rule info panel
-                $(".rrules_rule_name_label").removeClass("active");
-            }
-            rrules_rule_unhover();
-            toastr.success('Rule Successfully Deleted.', 'Success Alert', {});
+            $.getJSON("http://tbc.etracinc.com:247/ais/removerule?RuleID=" + rule_id).always(function(data) {
+                $('#dialog_modal').modal('hide');
+                if(data.responseText === "Ok") {
+                    element.remove();
+                    if (element.hasClass("selected") === true) {
+                        // Reset Rule info panel
+                        $(".rrules_rule_name_label").removeClass("active");
+                    }
+                    rrules_rule_unhover();
+                    toastr.success('Rule Successfully Deleted.', 'Success Alert', {});
+                } else {
+                    toastr.error('Rule cannot be deleted because it is in use by other Group.', 'Error Alert', {});
+                }
+                rrules_close_loading();
+            });
         });
     });
 
@@ -581,12 +587,14 @@ function rrules_load_rule_value(type_id, condition_id, condition) {
 // Change rule type
 function rrules_change_rule_type() {
     $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_type']").on("change", function() {
+        rrules_show_loading(3, 1);
         var type_id = $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_type']").val();
 
         $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_criteria']").empty();
         $(".rrules_edit_rule_value_row select[name = 'rrules_edit_rule_value']").empty();
         rrules_load_rule_criteria(type_id, 0);
         rrules_load_rule_value(type_id, 0, "");
+        rrules_close_loading();
     });
 }
 
@@ -625,16 +633,18 @@ function rrules_submit_rule_edit() {
              $(".rrules_rule_item[data-rule-id=" + rule_id + "]").attr({"data-rule-name": new_rule_name, "data-rule-desc": new_rule_desc}).find(".rrules_rule_name").text(new_rule_name);
              toastr_msg = 'Rule Detail Successfully Edited.';
         } else {
+            rrules_show_loading(2, 1);
             // Add New Rule
             $.getJSON("http://tbc.etracinc.com:247/ais/createNewRule", function(data) {
                 var new_id = data.NewIndex;
                 $.getJSON("http://tbc.etracinc.com:247/ais/updaterule?RuleID=" + new_id + "&Name=" + new_rule_name + "&TypeID=" + new_type_id + "&ComparisonID=" + new_comparison_id + "&ConditionID=" + new_condition_id + "&CustomCondition=" + new_condition, function(data) { });
 
-                $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + new_id, "data-rule-id": new_id, "data-rule-name": new_rule_name, "data-rule-desc": new_rule_desc }).addClass("rrules_type_definition").removeClass("hidden").insertBefore(".add_new_rule");
+                $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + new_id, "data-rule-id": new_id, "data-rule-name": new_rule_name, "data-rule-desc": new_rule_desc }).addClass("rrules_type_definition new").removeClass("hidden").insertBefore(".add_new_rule");
                 $("#rrules_rule_id_" + new_id + " .rrules_rule_name").text(new_rule_name);
-                // $("").on("click", function() {});
+                rrules_load_rules_events();
+                rrules_close_loading();
+                toastr_msg = 'New Rule Added Successfully.';
             });
-            toastr_msg = 'New Rule Added Successfully.';
         }
 
         $('#edit_rule_modal').modal('hide');
