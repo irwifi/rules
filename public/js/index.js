@@ -23,12 +23,11 @@ function rrules_load_group_list(group_id) {
     if($(".rrules_group_list").children().length === 1) {
         var active = "";
         // Get Rule Groups from the URL link
-        $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRuleGroups", function(groups) {
-            $.each(groups, function(key, value) {
-                if(value.ID === group_id) {active = ' class="active"'};
-                $(".rrules_group_list").append("<div data-id='" + value.ID + "'" + active + ">" + value.Name + "</div>");
-                active = "";
-            });
+        var groups = [{ID: 1, Name: "Rule Group 1"}, {ID: 2, Name: "Rule Group 2"}, {ID: 3, Name: "Rule Group 3"}];
+        $.each(groups, function(key, value) {
+            if(value.ID === group_id) {active = ' class="active"'};
+            $(".rrules_group_list").append("<div data-id='" + value.ID + "'" + active + ">" + value.Name + "</div>");
+            active = "";
         });
     }
 }
@@ -59,16 +58,15 @@ function rrules_load_rules(first_load, group_id) {
     rrules_show_loading(2, 1)
 
     // Get Rule details from the URL link
-    $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRules", function(rules) {
-        $.each(rules, function(key, value) {
-            // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
-            $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-id": value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
-            $("#rrules_rule_id_" + value.ID + " .rrules_rule_name").text(value.Name);
-        });
-
-        // Load the rule group
-        rrules_load_rule_group(first_load, group_id);
+    var rules = [{ID: 1, Name: "Rule 1", Description: "Rule 1 Description"}, {ID: 2, Name: "Rule 2", Description: "Rule 2 Description"}];
+    $.each(rules, function(key, value) {
+        // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
+        $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-id": value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
+        $("#rrules_rule_id_" + value.ID + " .rrules_rule_name").text(value.Name);
     });
+
+    // Load the rule group
+    rrules_load_rule_group(first_load, group_id);
 }
 
 // Load the rule group
