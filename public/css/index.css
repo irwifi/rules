@@ -13,7 +13,7 @@
   .rrules_main_body {
     width: 1300px;
     margin: 15px auto;
-    margin-top: 60px;
+    margin-top: 12px;
   }
 
   .loading_overlay {
@@ -259,26 +259,26 @@
   .rrules_rules_col {
     display: inline-block;
     width: 45%;
-    margin: 20px auto;
+    margin: 12px auto;
   }
 
   .rrules_rules_title {
     text-align: center;
     font-weight: bold;
-    font-size: 28px;
+    font-size: 22px;
     color: #999;
   }
 
   .rrules_rules_border {
     width:  100%;
     height: inherit;
-    padding: 14px 32px;
+    padding: 8px 32px;
     border: 2px solid #CCC;
-    border-radius:  8px;
+    border-radius:  2px;
   }
 
   .rrules_rules_box {
-    height: 600px;
+    height: 360px;
     overflow: auto;
   }
 
@@ -368,6 +368,75 @@
     color: #266f36;
   }
 /* Rules Panel ====================================== END */
+
+/* Email Panel ====================================== START */
+  .rrules_email_used, .rrules_email_definition {
+    margin-top:  8px;
+  }
+
+  .rrules_email_used .rrules_email_box, .rrules_email_definition .rrules_email_box {
+    height: 320px;
+    overflow: auto;
+  }
+
+    .rrules_email_item {
+    display: block;
+    margin: 8px;
+    padding: 8px 20px;
+    border: 1px solid #CCC;
+    border-radius: 6px;
+    background: #266f36;
+    color: #FFF;
+    height: 70px;
+    line-height: 36px;
+    font-size: 18px;
+    cursor: move;
+    text-align: center;
+  }
+
+  .rrules_email_name {
+    display: inline-block;
+    width: 355px;
+    height: 36px;
+    vertical-align: text-bottom;
+    text-align: left;
+    overflow: hidden;
+  }
+
+  .rrules_email_delete {
+      font-size: 48px;
+      cursor: pointer;
+  }
+
+  .rrules_email_delete:hover {
+    color: #888;
+  }
+
+    .rrules_email_definition .rrules_email_item:hover, .rrules_email_definition .rrules_email_item.selected {
+    background: #0a4d31;
+  }
+
+  .rrules_email_definition .rrules_email_item.rrules_email_used {
+    background: #40a777;
+    cursor: default;
+  }
+
+  .rrules_email_definition .rrules_email_item.add_new_email {
+    position: sticky;
+    bottom: 0px;
+    background: #c9efd1;
+    border: 3px dashed #85c793;
+    cursor: pointer;
+    font-size: 40px;
+    line-height: 48px;
+    color: #85c793;
+}
+
+  .rrules_email_definition .rrules_email_item.add_new_email:hover {
+    font-size: 50px;
+    color: #266f36;
+  }
+/* Email Panel ====================================== END */
 
 /* Add Edit Rules Modal ====================================== START */
   #edit_rule_modal .modal-body div {

@@ -13,6 +13,12 @@ $(function() {
     // Add edit rule
     rrules_add_edit_rule();
 
+    // Load the email alerts
+    rrules_load_emails();
+
+    // Submit add email
+    rrules_add_email_submit();
+
     // Load Toastr alert
     rrules_toastr();
 });
@@ -23,11 +29,12 @@ function rrules_load_group_list(group_id) {
     if($(".rrules_group_list").children().length === 1) {
         var active = "";
         // Get Rule Groups from the URL link
-        var groups = [{ID: 1, Name: "Rule Group 10001"}, {ID: 10002, Name: "Rule Group 2"}, {ID: 10003, Name: "Rule Group 3"}];
-        $.each(groups, function(key, value) {
-            if(value.ID === group_id) {active = ' class="active"'};
-            $(".rrules_group_list").append("<div data-id='" + value.ID + "'" + active + ">" + value.Name + "</div>");
-            active = "";
+        $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRuleGroups", function(groups) {
+            $.each(groups, function(key, value) {
+                if(value.ID === group_id) {active = ' class="active"'};
+                $(".rrules_group_list").append("<div data-id='" + value.ID + "'" + active + ">" + value.Name + "</div>");
+                active = "";
+            });
         });
     }
 }
@@ -58,58 +65,78 @@ function rrules_load_rules(first_load, group_id) {
     rrules_show_loading(2, 1)
 
     // Get Rule details from the URL link
-    var rules = [{ID: 10001, Name: "Rule 1", Description: "Rule 1 Description"}, {ID: 10002, Name: "Rule 2", Description: "Rule 2 Description"}];
-    $.each(rules, function(key, value) {
-        // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
-        $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-id": value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
-        $("#rrules_rule_id_" + value.ID + " .rrules_rule_name").text(value.Name);
-    });
+    $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRules", function(rules) {
+        $.each(rules, function(key, value) {
+            // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
+            $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-id": value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
+            $("#rrules_rule_id_" + value.ID + " .rrules_rule_name").text(value.Name);
+        });
 
-    // Load the rule group
-    rrules_load_rule_group(first_load, group_id);
+        // Load the rule group
+        rrules_load_rule_group(first_load, group_id);
+    });
+}
+
+// Load email alerts
+function rrules_load_emails() {
+    // Get email alert details from the URL link
+    $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllEmails", function(emails) {
+        $.each(emails, function(key, value) {
+            // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
+            $("#rrules_email_sample").clone().attr({ "id": "rrules_email_id_" + value.ID, "data-email-id": value.ID, "data-email": value.Email}).addClass("new rrules_email_definition").removeClass("hidden").appendTo(".rrules_email_definition .rrules_email_box");
+            $("#rrules_email_id_" + value.ID + " .rrules_email_name").text(value.Email);
+        });
+
+        // Add new email button
+        rrules_add_email_button();
+
+        rrules_load_email_events();
+    });
 }
 
 // Load the rule group
 function rrules_load_rule_group(first_load, group_id) {
     // Load Rule Group details
-    var data = [{severity: 1, Name: "Test Group", RulesID: [10001]}, {severity: 2, Name: "Test Group 2", RulesID: [10002]}];
-    // Get Rule Group Severity from the URL link
-    var severity = [{ID: 1, Name: "Low"},  {ID: 1, Name: "Medium"}, {ID: 1, Name: "High"}];
-    $.each(severity, function(key, value) {
-        var option_html = "<option value='" + value.ID + "'";
-        if (value.ID === data.Severity) {
-            option_html = option_html + ' selected = "selected"';
-            $(".rrules_group_info_severity").text("(" + value.Name + ")");
-            $(".rrules_group_severity").attr("data-id", value.ID);
+    $.getJSON("https://tbc.etracinc.com:248/AIS/GetRuleGroupInfo?GroupID=" + group_id, function(data) {
+        // Get Rule Group Severity from the URL link
+        $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRuleSeverity", function(severity) {
+            $.each(severity, function(key, value) {
+                var option_html = "<option value='" + value.ID + "'";
+                if (value.ID === data.Severity) {
+                    option_html = option_html + ' selected = "selected"';
+                    $(".rrules_group_info_severity").text("(" + value.Name + ")");
+                    $(".rrules_group_severity").attr("data-id", value.ID);
+                }
+                option_html = option_html + ">" + value.Name + "</option>";
+                $(".rrules_group_severity select").append(option_html);
+            });
+            // Close loading overlay
+            rrules_close_loading();
+        });
+
+        $(".rrules_group_info").show();
+        $(".rrules_group_edit").removeClass("add_new").hide();
+        $(".rrules_group_label").attr({ "data-id": group_id })
+        $(".rrules_group_info_name").text(data.Name);
+        $(".rrules_group_name input").val(data.Name);
+
+        if(first_load === true) {
+            // Load Rule Group events
+            rrules_group_events();
         }
-        option_html = option_html + ">" + value.Name + "</option>";
-        $(".rrules_group_severity select").append(option_html);
+
+        // Add New Rule Button
+        rrules_add_rule_button()
+
+        // Load used Rules
+        rrules_load_used_rules(data.RulesID);
+
+        // Load Rule events
+        rrules_load_rules_events();
+
+        // Initiate the draggable elements
+        rrules_init_sortable();
     });
-    // Close loading overlay
-    rrules_close_loading();
-
-    $(".rrules_group_info").show();
-    $(".rrules_group_edit").removeClass("add_new").hide();
-    $(".rrules_group_label").attr({ "data-id": group_id })
-    $(".rrules_group_info_name").text(data.Name);
-    $(".rrules_group_name input").val(data.Name);
-
-    if(first_load === true) {
-        // Load Rule Group events
-        rrules_group_events();
-    }
-
-    // Add New Rule Button
-    rrules_add_rule_button()
-
-    // Load used Rules
-    rrules_load_used_rules(data.RulesID);
-
-    // Load Rule events
-    rrules_load_rules_events();
-
-    // Initiate the draggable elements
-    rrules_init_sortable();
 }
 
 // Load used Rules
@@ -152,6 +179,17 @@ function rrules_add_rule_button() {
     $(".add_new_rule").on("click", function() {$('#edit_rule_modal').modal('show');});
 }
 
+// Add New Email Button
+function rrules_add_email_button() {
+    $("#rrules_email_sample").clone().addClass("add_new_email").removeClass("hidden").empty().appendTo(".rrules_email_box.sortable4");
+    $(".add_new_email").append('<i class="fa fa-plus-circle" aria-hidden="true"></i>').off();
+    $(".add_new_email").on("click", function() {$('#add_email_modal').modal('show');});
+
+    $('#add_email_modal').on('show.bs.modal', function() {
+        $("#add_email_modal input").val("");
+     });
+}
+
 // Load Rule events
 function rrules_load_rules_events() {
     // Clear existing events
@@ -187,19 +225,66 @@ function rrules_load_rules_events() {
         $("#dialog_modal .btn_yes").on("click", function() {
             rrules_show_loading(0,1);
             // Delete Rule Groups
-            $('#dialog_modal').modal('hide');
-            if(1) {
-                element.remove();
-                if (element.hasClass("selected") === true) {
-                    // Reset Rule info panel
-                    $(".rrules_rule_name_label").removeClass("active");
+            $.getJSON("https://tbc.etracinc.com:248/ais/removerule?RuleID=" + rule_id).always(function(data) {
+                $('#dialog_modal').modal('hide');
+                if(data.responseText === "Ok") {
+                    element.remove();
+                    if (element.hasClass("selected") === true) {
+                        // Reset Rule info panel
+                        $(".rrules_rule_name_label").removeClass("active");
+                    }
+                    rrules_rule_unhover();
+                    toastr.success('Rule Successfully Deleted.', 'Success Alert', {});
+                } else {
+                    toastr.error('Rule cannot be deleted because it is in use by other Group.', 'Error Alert', {});
                 }
-                rrules_rule_unhover();
-                toastr.success('Rule Successfully Deleted.', 'Success Alert', {});
-            } else {
-                toastr.error('Rule cannot be deleted because it is in use by other Group.', 'Error Alert', {});
-            }
-            rrules_close_loading();
+                rrules_close_loading();
+            });
+        });
+    });
+
+    // Remove class .new from New items
+    $(".new").removeClass("new");
+}
+
+// Load Email events
+function rrules_load_email_events() {
+    // Clear existing events
+    $(".rrules_email_item.new").off();
+    $(".rrules_email_item.new .rrules_email_delete").off();
+
+    // Delete Email from used Rule
+    $(".rrules_email_used .rrules_email_item.new .rrules_email_delete").on("click", function(event) {
+        // Stop Rule selection
+        event.stopPropagation();
+
+        var element = $(this).closest(".rrules_email_item");
+        rrules_remove_used_rule(element);
+    });
+
+    // Delete Rule from Rule definition
+    $(".rrules_email_definition  .rrules_email_item.new .rrules_email_delete").on("click", function(event) {
+        // Stop Rule selection
+        event.stopPropagation();
+
+        var element = $(this).closest(".rrules_email_item");
+        var email_id = element.attr("data-email-id");
+
+        $("#dialog_modal").modal();
+        $("#dialog_modal .modal-body").text("Are you sure you want to delete this Email Alert?");
+
+        $("#dialog_modal .btn_yes").off();
+        $("#dialog_modal .btn_yes").on("click", function() {
+            rrules_show_loading(0,1);
+            // Delete Email
+            $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveEmail?EmailID=" + email_id).always(function(data) {
+                $('#dialog_modal').modal('hide');
+                if(data.responseText === "Ok") {
+                    element.remove();
+                    toastr.success('Email Successfully Deleted.', 'Success Alert', {});
+                }
+                rrules_close_loading();
+            });
         });
     });
 
@@ -307,6 +392,8 @@ function rrules_drop_to_used() {
 
             var group_id = $(".rrules_group_label").attr("data-id");
             // URL to Insert Rule to Group
+            $.getJSON("https://tbc.etracinc.com:248/AIS/AddNewRuleToRuleGroup?GroupID=" + group_id + "&RuleID=" + rule_id + "&Order=2", function(result) {
+            });
         }
     });
 }
@@ -340,6 +427,8 @@ function rrules_remove_used_rule(element) {
 
     var group_id = $(".rrules_group_label").attr("data-id");
     // URL to Delete Rule from Group
+    $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveRuleFromRuleGroup?GroupID=" + group_id + "&RuleID=" + id, function(result) {
+    });
 }
 
 // Show loading overlay
@@ -401,37 +490,42 @@ function rrules_add_edit_group() {
     rrules_show_loading(0, 0.5);
 
     var severity_name;
-    var severity = [{ID: 1, Name: "Low"},  {ID: 1, Name: "Medium"}, {ID: 1, Name: "High"}];
-    $.each(severity, function(key, value) {
-        if(parseInt(value.ID) === parseInt(group_severity)) {
-            severity_name = value.Name;
+    $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRuleSeverity", function(severity) {
+        $.each(severity, function(key, value) {
+            if(parseInt(value.ID) === parseInt(group_severity)) {
+                severity_name = value.Name;
 
-            if($(".rrules_group_edit").hasClass("add_new")) {
-                // Show loading overlay
-                rrules_show_loading(2, 1);
+                if($(".rrules_group_edit").hasClass("add_new")) {
+                    // Show loading overlay
+                    rrules_show_loading(2, 1);
 
-                // Add new Rule Group
-                $(".rrules_group_edit").removeClass("add_new");
+                    // Add new Rule Group
+                    $(".rrules_group_edit").removeClass("add_new");
 
-                var new_id = default_group;
-                new_id = 20001;
-                 rrules_reload_group(new_id);
-                 toastr.success('New Rule Group Successfully Added.', 'Success Alert', {});
-                  $( ".rrules_group_cancel input" ).trigger( "click" );
-                 $(".rrules_group_list").append('<div data-id="' + new_id + '" class="active">' + group_name + '</div>');
-                 $(".rrules_group_list div[data-id='" + new_id + "']").on("click", function() {rrules_reload_group($(this).attr("data-id"));});
-            } else {
-                // Update Rule Group detail
-                $(".rrules_group_info_name").text(group_name);
-                $(".rrules_group_name input").val(group_name);
-                $(".rrules_group_severity select").val(group_severity);
-                $(".rrules_group_info_severity").text("(" + severity_name + ")");
-                $( ".rrules_group_cancel input" ).trigger( "click" );
-                rrules_close_loading();
-                toastr.success('Rule Group Detail Successfully Updated.', 'Success Alert', {});
+                    var new_id = default_group;
+                    $.getJSON("https://tbc.etracinc.com:248/AIS/CreateNewRuleGroup", function(data) {
+                        new_id = data.NewIndex;
+                         $.getJSON("https://tbc.etracinc.com:248/ais/updaterulegroupname?GroupID=" + new_id + "&Name=" + group_name + "&Severity=" + group_severity, function(result) { });
+                         rrules_reload_group(new_id);
+                         toastr.success('New Rule Group Successfully Added.', 'Success Alert', {});
+                          $( ".rrules_group_cancel input" ).trigger( "click" );
+                         $(".rrules_group_list").append('<div data-id="' + new_id + '" class="active">' + group_name + '</div>');
+                         $(".rrules_group_list div[data-id='" + new_id + "']").on("click", function() {rrules_reload_group($(this).attr("data-id"));});
+                    });
+                } else {
+                    // Update Rule Group detail
+                    $.getJSON("https://tbc.etracinc.com:248/ais/updaterulegroupname?GroupID=" + group_id + "&Name=" + group_name + "&Severity=" + group_severity, function(result) {  });
+                    $(".rrules_group_info_name").text(group_name);
+                    $(".rrules_group_name input").val(group_name);
+                    $(".rrules_group_severity select").val(group_severity);
+                    $(".rrules_group_info_severity").text("(" + severity_name + ")");
+                    $( ".rrules_group_cancel input" ).trigger( "click" );
+                    rrules_close_loading();
+                    toastr.success('Rule Group Detail Successfully Updated.', 'Success Alert', {});
+                }
+                return false;
             }
-            return false;
-        }
+        });
     });
 }
 
@@ -445,8 +539,9 @@ function rrules_group_delete() {
     $("#dialog_modal .btn_yes").on("click", function() {
         // Show loading overlay
         rrules_show_loading(2, 1);
-
         // Delete Rule Groups
+        $.getJSON("https://tbc.etracinc.com:248/ais/removerulegroup?GroupID=" + group_id, function(data) { });
+
         $('#dialog_modal').modal('hide');
         $(".rrules_group_list div.active").remove();
         rrules_reload_group(default_group);
@@ -477,17 +572,19 @@ function rrules_add_edit_rule() {
 
         if(rule_id !== undefined) {
             // Get Rule info
-            rule_name = data.Name;
-            type_id = 1
-            comparison_id = 1
-            condition_id = 1
-            condition = "";
+            $.getJSON("https://tbc.etracinc.com:248/ais/Getruleinfo?RuleID=" + rule_id, function(data) {
+                rule_name = data.Name;
+                type_id = data.typeID;
+                comparison_id = data.ComparisonID;
+                condition_id = data.ConditionID;
+                condition = data.Condition;
 
-            $("#edit_rule_modal .modal-title").text("Edit Rule");
-            $(".rrules_edit_rule_name_row input").attr("data-rule-id", rule_id).val(rule_name);
-            $(".rrules_edit_rule_value_row select").empty();
-            // Load all Rule types
-            rrules_load_rule_type(type_id, comparison_id, condition_id, condition);
+                $("#edit_rule_modal .modal-title").text("Edit Rule");
+                $(".rrules_edit_rule_name_row input").attr("data-rule-id", rule_id).val(rule_name);
+                $(".rrules_edit_rule_value_row select").empty();
+                // Load all Rule types
+                rrules_load_rule_type(type_id, comparison_id, condition_id, condition);
+            });
         } else {
             $("#edit_rule_modal .modal-title").text("Add New Rule");
             $(".rrules_edit_rule_name_row input").removeAttr("data-rule-id");
@@ -507,7 +604,7 @@ function rrules_add_edit_rule() {
 // Load all Rule types
 function rrules_load_rule_type(type_id, comparison_id, condition_id, condition) {
     var option_selected = "";
-    $.getJSON("http://tbc.etracinc.com:247/AIS/GetAllRuleTypes", function(type) {
+    $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRuleTypes", function(type) {
         $.each(type, function(key, value) {
             if(value.ID === type_id) {
                 option_selected = "selected='selected'";
@@ -531,7 +628,7 @@ function rrules_load_rule_type(type_id, comparison_id, condition_id, condition) 
 // Load rule criteria
 function rrules_load_rule_criteria(type_id, comparison_id) {
     var option_selected = "";
-    $.getJSON("http://tbc.etracinc.com:247/ais/getrulecomparison?TypeID=" + type_id, function(criteria) {
+    $.getJSON("https://tbc.etracinc.com:248/ais/getrulecomparison?TypeID=" + type_id, function(criteria) {
         $.each(criteria, function(key, value) {
             if(value.ID === comparison_id) {
                 option_selected = "selected='selected'";
@@ -545,7 +642,7 @@ function rrules_load_rule_criteria(type_id, comparison_id) {
 
 // Load rule value
 function rrules_load_rule_value(type_id, condition_id, condition) {
-    $.getJSON("http://tbc.etracinc.com:247/ais/getrulevalues?TypeID=" + type_id, function(result) {
+    $.getJSON("https://tbc.etracinc.com:248/ais/getrulevalues?TypeID=" + type_id, function(result) {
         if(result.length > 0) {
             var option_selected = "";
             $(".rrules_edit_rule_value").siblings("select").show();
@@ -611,22 +708,54 @@ function rrules_submit_rule_edit() {
         var toastr_msg;
         if(rule_id !== undefined) {
              // Edit Rule
+             $.getJSON("https://tbc.etracinc.com:248/ais/updaterule?RuleID=" + rule_id + "&Name=" + new_rule_name + "&TypeID=" + new_type_id + "&ComparisonID=" + new_comparison_id + "&ConditionID=" + new_condition_id + "&CustomCondition=" + new_condition, function(data) { });
              $(".rrules_rule_item[data-rule-id=" + rule_id + "]").attr({"data-rule-name": new_rule_name, "data-rule-desc": new_rule_desc}).find(".rrules_rule_name").text(new_rule_name);
              toastr_msg = 'Rule Detail Successfully Edited.';
         } else {
             rrules_show_loading(2, 1);
             // Add New Rule
-            var new_id = 20001;
-            $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + new_id, "data-rule-id": new_id, "data-rule-name": new_rule_name, "data-rule-desc": new_rule_desc }).addClass("rrules_type_definition new").removeClass("hidden").insertBefore(".add_new_rule");
-            $("#rrules_rule_id_" + new_id + " .rrules_rule_name").text(new_rule_name);
-            rrules_load_rules_events();
-            rrules_close_loading();
-            toastr_msg = 'New Rule Added Successfully.';
+            $.getJSON("https://tbc.etracinc.com:248/ais/createNewRule", function(data) {
+                var new_id = data.NewIndex;
+                $.getJSON("https://tbc.etracinc.com:248/ais/updaterule?RuleID=" + new_id + "&Name=" + new_rule_name + "&TypeID=" + new_type_id + "&ComparisonID=" + new_comparison_id + "&ConditionID=" + new_condition_id + "&CustomCondition=" + new_condition, function(data) { });
+
+                $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + new_id, "data-rule-id": new_id, "data-rule-name": new_rule_name, "data-rule-desc": new_rule_desc }).addClass("rrules_type_definition new").removeClass("hidden").insertBefore(".add_new_rule");
+                $("#rrules_rule_id_" + new_id + " .rrules_rule_name").text(new_rule_name);
+                rrules_load_rules_events();
+                rrules_close_loading();
+                toastr_msg = 'New Rule Added Successfully.';
+            });
         }
 
         $('#edit_rule_modal').modal('hide');
         toastr.success(toastr_msg, 'Success Alert', {});
         rrules_close_loading();
+    });
+}
+
+// Submit add email button
+function rrules_add_email_submit() {
+    $("#add_email_modal .btn_submit").off();
+    $("#add_email_modal .btn_submit").on("click", function() {
+
+        var toastr_msg;
+        var new_email = $("#add_email_modal input.email_id").val();
+
+        var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if(new_email.match(mailformat)) {
+            rrules_show_loading(0, 1);
+            // Add New Rule
+            $.getJSON("https://tbc.etracinc.com:248/AIS/CreateNewEmail?Email=" + new_email, function(data) {});
+
+            $(".rrules_email_definition .rrules_email_box").empty();
+            $('#add_email_modal').modal('hide');
+            toastr_msg = 'New Email Alert Added Successfully.';
+            toastr.success(toastr_msg, 'Success Alert', {});
+            rrules_close_loading();
+             rrules_load_emails();
+        } else {
+            toastr_msg = 'Invalid Email';
+            toastr.success(toastr_msg, 'Error Alert', {});
+        }
     });
 }
 
