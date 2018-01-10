@@ -83,7 +83,7 @@ function rrules_load_emails() {
     $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllEmails", function(emails) {
         $.each(emails, function(key, value) {
             // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
-            $("#rrules_email_sample").clone().attr({ "id": "rrules_email_id_" + value.ID, "data-email-id": value.ID, "data-email": value.Email}).addClass("new rrules_email_definition").removeClass("hidden").appendTo(".rrules_email_definition .rrules_email_box");
+            $("#rrules_email_sample").clone().attr({ "id": "rrules_email_id_" + value.ID, "data-email-id": value.ID, "data-email-name": value.Email}).addClass("new rrules_email_definition").removeClass("hidden").appendTo(".rrules_email_definition .rrules_email_box");
             $("#rrules_email_id_" + value.ID + " .rrules_email_name").text(value.Email);
         });
 
@@ -131,8 +131,14 @@ function rrules_load_rule_group(first_load, group_id) {
         // Load used Rules
         rrules_load_used_rules(data.RulesID);
 
+        // Load used emails
+        rrules_load_used_emails(data.EmailID);
+
         // Load Rule events
         rrules_load_rules_events();
+
+        // Load Rule events
+        rrules_load_email_events();
 
         // Initiate the draggable elements
         rrules_init_sortable();
@@ -158,6 +164,21 @@ function rrules_load_used_rules(used_rules) {
     rrules_close_loading();
 }
 
+// Load used emails
+function rrules_load_used_emails(used_emails) {
+    $.each(used_emails, function(key, id) {
+        var email_name = $("#rrules_email_id_" + id).attr("data-email-name");
+        $("#rrules_email_sample").clone().attr({ "id": "rrules_used_email_id_" + id, "data-email-id": id, "data-email-name": email_name }).addClass("new rrules_email_type_used").removeClass("hidden").appendTo(".rrules_email_used .rrules_email_box");
+        $("#rrules_used_email_id_" + id + " .rrules_email_name").text(email_name);
+
+        // Hide used email in definition
+        rrules_hide_used_email(id);
+    });
+
+    // Close loading overlay
+    rrules_close_loading();
+}
+
 // Mark used Rule in definition
 function rrules_mark_used_rule(rule_id) {
     $("#rrules_rule_id_" + rule_id).removeClass("rrules_type_definition ui-draggable ui-draggable-handle").addClass("rrules_type_definition_used");
@@ -170,6 +191,11 @@ function rrules_mark_used_rule(rule_id) {
 // Hide used Rule in definition
 function rrules_hide_used_rule(rule_id) {
     $("#rrules_rule_id_" + rule_id).removeClass("rrules_type_definition ui-draggable ui-draggable-handle").addClass("rrules_type_definition_used hidden");
+}
+
+// Hide used email in definition
+function rrules_hide_used_email(email_id) {
+    $("#rrules_email_id_" + email_id).hide();//.removeClass("rrules_email_definition ui-draggable ui-draggable-handle").addClass("rrules_email_definition_used hidden");
 }
 
 // Add New Rule Button
@@ -253,16 +279,16 @@ function rrules_load_email_events() {
     $(".rrules_email_item.new").off();
     $(".rrules_email_item.new .rrules_email_delete").off();
 
-    // Delete Email from used Rule
-    $(".rrules_email_used .rrules_email_item.new .rrules_email_delete").on("click", function(event) {
+    // Delete Email from used Email
+    $(".rrules_email_used .rrules_email_item.new").on("click", function(event) {alert(1);
         // Stop Rule selection
         event.stopPropagation();
 
         var element = $(this).closest(".rrules_email_item");
-        rrules_remove_used_rule(element);
+        // rrules_remove_used_email(element);
     });
 
-    // Delete Rule from Rule definition
+    // Delete email from email definition
     $(".rrules_email_definition  .rrules_email_item.new .rrules_email_delete").on("click", function(event) {
         // Stop Rule selection
         event.stopPropagation();
@@ -368,6 +394,13 @@ function rrules_toggle_rule_select(element) {
 function rrules_init_sortable() {
     $(".sortable1, .sortable2").sortable({
         revert: true,
+        connectWith: ".sortable_rules",
+        helper: "clone"
+    });
+
+    $(".sortable3, .sortable4").sortable({
+        revert: true,
+        connectWith: ".sortable_emails",
         helper: "clone"
     });
 }
@@ -428,6 +461,21 @@ function rrules_remove_used_rule(element) {
     var group_id = $(".rrules_group_label").attr("data-id");
     // URL to Delete Rule from Group
     $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveRuleFromRuleGroup?GroupID=" + group_id + "&RuleID=" + id, function(result) {
+    });
+}
+
+// Remove used email
+function rrules_remove_used_email(element) {
+    var id = element.attr("id").replace("rrules_used_email_id_", "");
+    $("#rrules_email_id_" + id).addClass("new rrules_email_definition").removeClass("rrules_email_definition_used hidden");
+    $("#rrules_email_id_" + id + " .rrules_used_hint").text("");
+
+    // Delete used Rule
+    element.remove();
+
+    var group_id = $(".rrules_group_label").attr("data-id");
+    // URL to Delete Rule from Group
+    $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveEmailFromRuleGroup?GroupID=" + group_id + "&emailID=" + id, function(result) {
     });
 }
 
@@ -754,7 +802,7 @@ function rrules_add_email_submit() {
              rrules_load_emails();
         } else {
             toastr_msg = 'Invalid Email';
-            toastr.success(toastr_msg, 'Error Alert', {});
+            toastr.error(toastr_msg, 'Error Alert', {});
         }
     });
 }
