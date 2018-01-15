@@ -1,6 +1,18 @@
 var default_group = 1, loading_count = 0;
 
 $(function() {
+    // Load Rule functions
+    rrules_rule_functions();
+
+    // Load email functions
+    rrules_email_functions();
+
+    // Load Toastr alert
+    rrules_toastr();
+});
+
+// Load rule functions
+function rrules_rule_functions() {
     // Load the rules,  Default Group Id = 1
     rrules_load_rules(true, default_group);
 
@@ -12,16 +24,7 @@ $(function() {
 
     // Add edit rule
     rrules_add_edit_rule();
-
-    // Load the email alerts
-    rrules_load_emails();
-
-    // Submit add email
-    rrules_add_email_submit();
-
-    // Load Toastr alert
-    rrules_toastr();
-});
+}
 
 // Load Rule Group list
 function rrules_load_group_list(group_id) {
@@ -77,23 +80,6 @@ function rrules_load_rules(first_load, group_id) {
     });
 }
 
-// Load email alerts
-function rrules_load_emails() {
-    // Get email alert details from the URL link
-    $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllEmails", function(emails) {
-        $.each(emails, function(key, value) {
-            // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
-            $("#rrules_email_sample").clone().attr({ "id": "rrules_email_id_" + value.ID, "data-email-id": value.ID, "data-email-name": value.Email}).addClass("new rrules_email_definition").removeClass("hidden").appendTo(".rrules_email_definition .rrules_email_box");
-            $("#rrules_email_id_" + value.ID + " .rrules_email_name").text(value.Email);
-        });
-
-        // Add new email button
-        rrules_add_email_button();
-
-        rrules_load_email_events();
-    });
-}
-
 // Load the rule group
 function rrules_load_rule_group(first_load, group_id) {
     // Load Rule Group details
@@ -131,13 +117,13 @@ function rrules_load_rule_group(first_load, group_id) {
         // Load used Rules
         rrules_load_used_rules(data.RulesID);
 
-        // Load used emails
-        rrules_load_used_emails(data.EmailID);
-
         // Load Rule events
         rrules_load_rules_events();
 
-        // Load Rule events
+        // Load used emails
+        rrules_load_used_emails(data.EmailID);
+
+        // Load email events
         rrules_load_email_events();
 
         // Initiate the draggable elements
@@ -164,21 +150,6 @@ function rrules_load_used_rules(used_rules) {
     rrules_close_loading();
 }
 
-// Load used emails
-function rrules_load_used_emails(used_emails) {
-    $.each(used_emails, function(key, id) {
-        var email_name = $("#rrules_email_id_" + id).attr("data-email-name");
-        $("#rrules_email_sample").clone().attr({ "id": "rrules_used_email_id_" + id, "data-email-id": id, "data-email-name": email_name }).addClass("new rrules_email_type_used").removeClass("hidden").appendTo(".rrules_email_used .rrules_email_box");
-        $("#rrules_used_email_id_" + id + " .rrules_email_name").text(email_name);
-
-        // Hide used email in definition
-        rrules_hide_used_email(id);
-    });
-
-    // Close loading overlay
-    rrules_close_loading();
-}
-
 // Mark used Rule in definition
 function rrules_mark_used_rule(rule_id) {
     $("#rrules_rule_id_" + rule_id).removeClass("rrules_type_definition ui-draggable ui-draggable-handle").addClass("rrules_type_definition_used");
@@ -193,27 +164,11 @@ function rrules_hide_used_rule(rule_id) {
     $("#rrules_rule_id_" + rule_id).removeClass("rrules_type_definition ui-draggable ui-draggable-handle").addClass("rrules_type_definition_used hidden");
 }
 
-// Hide used email in definition
-function rrules_hide_used_email(email_id) {
-    $("#rrules_email_id_" + email_id).hide();//.removeClass("rrules_email_definition ui-draggable ui-draggable-handle").addClass("rrules_email_definition_used hidden");
-}
-
 // Add New Rule Button
 function rrules_add_rule_button() {
     $("#rrules_rule_sample").clone().addClass("add_new_rule").removeClass("hidden").empty().appendTo(".rrules_rules_box.sortable2");
     $(".add_new_rule").append('<i class="fa fa-plus-circle" aria-hidden="true"></i>').off();
     $(".add_new_rule").on("click", function() {$('#edit_rule_modal').modal('show');});
-}
-
-// Add New Email Button
-function rrules_add_email_button() {
-    $("#rrules_email_sample").clone().addClass("add_new_email").removeClass("hidden").empty().appendTo(".rrules_email_box.sortable4");
-    $(".add_new_email").append('<i class="fa fa-plus-circle" aria-hidden="true"></i>').off();
-    $(".add_new_email").on("click", function() {$('#add_email_modal').modal('show');});
-
-    $('#add_email_modal').on('show.bs.modal', function() {
-        $("#add_email_modal input").val("");
-     });
 }
 
 // Load Rule events
@@ -263,51 +218,6 @@ function rrules_load_rules_events() {
                     toastr.success('Rule Successfully Deleted.', 'Success Alert', {});
                 } else {
                     toastr.error('Rule cannot be deleted because it is in use by other Group.', 'Error Alert', {});
-                }
-                rrules_close_loading();
-            });
-        });
-    });
-
-    // Remove class .new from New items
-    $(".new").removeClass("new");
-}
-
-// Load Email events
-function rrules_load_email_events() {
-    // Clear existing events
-    $(".rrules_email_item.new").off();
-    $(".rrules_email_item.new .rrules_email_delete").off();
-
-    // Delete Email from used Email
-    $(".rrules_email_used .rrules_email_item.new").on("click", function(event) {alert(1);
-        // Stop Rule selection
-        event.stopPropagation();
-
-        var element = $(this).closest(".rrules_email_item");
-        // rrules_remove_used_email(element);
-    });
-
-    // Delete email from email definition
-    $(".rrules_email_definition  .rrules_email_item.new .rrules_email_delete").on("click", function(event) {
-        // Stop Rule selection
-        event.stopPropagation();
-
-        var element = $(this).closest(".rrules_email_item");
-        var email_id = element.attr("data-email-id");
-
-        $("#dialog_modal").modal();
-        $("#dialog_modal .modal-body").text("Are you sure you want to delete this Email Alert?");
-
-        $("#dialog_modal .btn_yes").off();
-        $("#dialog_modal .btn_yes").on("click", function() {
-            rrules_show_loading(0,1);
-            // Delete Email
-            $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveEmail?EmailID=" + email_id).always(function(data) {
-                $('#dialog_modal').modal('hide');
-                if(data.responseText === "Ok") {
-                    element.remove();
-                    toastr.success('Email Successfully Deleted.', 'Success Alert', {});
                 }
                 rrules_close_loading();
             });
@@ -388,115 +298,6 @@ function rrules_toggle_rule_select(element) {
         element.addClass("selected");
         $(".rrules_rule_name_label").addClass("active");
     }
-}
-
-// Initiate the draggable elements
-function rrules_init_sortable() {
-    $(".sortable1, .sortable2").sortable({
-        revert: true,
-        connectWith: ".sortable_rules",
-        helper: "clone"
-    });
-
-    $(".sortable3, .sortable4").sortable({
-        revert: true,
-        connectWith: ".sortable_emails",
-        helper: "clone"
-    });
-}
-
-// Drop Rules to used rule area
-function rrules_drop_to_used() {
-    $(".rrules_rules_used .rrules_rules_box").droppable({
-        accept: ".rrules_type_definition",
-        drop: function(event, ui) {
-            var rule_id = $(ui.helper).attr("id").replace("rrules_rule_id_", "");
-            $(ui.helper).clone().attr("id", "rrules_used_rule_id_" + rule_id).addClass("new rrules_type_used").removeClass("rrules_type_definition ui-draggable ui-draggable-handle ui-draggable-dragging").removeAttr("style").appendTo($(this));
-            $(ui.helper).remove();
-
-            // Mark used Rule in definition
-            // rrules_mark_used_rule(rule_id);
-
-            // Hide used Rule in definition
-            rrules_hide_used_rule(rule_id);
-
-            // Load Rule events
-            rrules_load_rules_events();
-
-            var group_id = $(".rrules_group_label").attr("data-id");
-            // URL to Insert Rule to Group
-            $.getJSON("https://tbc.etracinc.com:248/AIS/AddNewRuleToRuleGroup?GroupID=" + group_id + "&RuleID=" + rule_id + "&Order=2", function(result) {
-            });
-        }
-    });
-}
-
-// Drop Rules to rule definition
-function rrules_drop_to_definition() {
-    $(".rrules_rules_definition .rrules_rules_box").droppable({
-        accept: ".rrules_type_used",
-        drop: function(event, ui) {
-            var element = $("#" + ui.draggable.attr("id"));
-            ui.helper.remove();
-            rrules_remove_used_rule(element);
-        }
-    });
-}
-
-// Remove used Rule
-function rrules_remove_used_rule(element) {
-    var id = element.attr("id").replace("rrules_used_rule_id_", "");
-    $("#rrules_rule_id_" + id).addClass("new rrules_type_definition").removeClass("rrules_type_definition_used hidden");
-    $("#rrules_rule_id_" + id + " .rrules_used_hint").text("");
-    if (element.hasClass("selected") === true) {
-        // Clear Rule selection
-        $(".rrules_rule_item.selected").removeClass("selected");
-        // Reset Rule info panel
-        $(".rrules_rule_name_label").removeClass("active");
-    }
-    // Delete used Rule
-    element.remove();
-    rrules_rule_unhover();
-
-    var group_id = $(".rrules_group_label").attr("data-id");
-    // URL to Delete Rule from Group
-    $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveRuleFromRuleGroup?GroupID=" + group_id + "&RuleID=" + id, function(result) {
-    });
-}
-
-// Remove used email
-function rrules_remove_used_email(element) {
-    var id = element.attr("id").replace("rrules_used_email_id_", "");
-    $("#rrules_email_id_" + id).addClass("new rrules_email_definition").removeClass("rrules_email_definition_used hidden");
-    $("#rrules_email_id_" + id + " .rrules_used_hint").text("");
-
-    // Delete used Rule
-    element.remove();
-
-    var group_id = $(".rrules_group_label").attr("data-id");
-    // URL to Delete Rule from Group
-    $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveEmailFromRuleGroup?GroupID=" + group_id + "&emailID=" + id, function(result) {
-    });
-}
-
-// Show loading overlay
-function rrules_show_loading(load_count, opacity) {
-    loading_count = load_count;
-    $(".loader").show();
-    $(".loading_overlay").css({"opacity": 1});
-}
-
-// Close loading overlay
-function rrules_close_loading() {
-    loading_count--;
-    if(loading_count < 1) {
-        $(".loader").css({"opacity": 1}).fadeOut();
-    }
-}
-
-function rrules_group_info_toggle() {
-    $(".rrules_group_info").hide();
-    $(".rrules_group_edit").show();
 }
 
 // Cancel Group add/edit
@@ -780,11 +581,226 @@ function rrules_submit_rule_edit() {
     });
 }
 
+// Drop Rules to used rule area
+function rrules_drop_to_used() {
+    $(".rrules_rules_used .rrules_rules_box").droppable({
+        accept: ".rrules_type_definition",
+        drop: function(event, ui) {
+            if($(ui.helper).hasClass("add_new_rule") === false) {
+                var rule_id = $(ui.helper).attr("id").replace("rrules_rule_id_", "");
+                $(ui.helper).clone().attr("id", "rrules_used_rule_id_" + rule_id).addClass("new rrules_type_used").removeClass("rrules_type_definition ui-draggable ui-draggable-handle ui-draggable-dragging").removeAttr("style").appendTo($(this));
+                $(ui.helper).remove();
+
+                // Mark used Rule in definition
+                // rrules_mark_used_rule(rule_id);
+
+                // Hide used Rule in definition
+                rrules_hide_used_rule(rule_id);
+
+                // Load Rule events
+                rrules_load_rules_events();
+
+                var group_id = $(".rrules_group_label").attr("data-id");
+                // URL to Insert Rule to Group
+                $.getJSON("https://tbc.etracinc.com:248/AIS/AddNewRuleToRuleGroup?GroupID=" + group_id + "&RuleID=" + rule_id + "&Order=2", function(result) {
+                });
+            }
+        }
+    });
+}
+
+// Drop Rules to rule definition
+function rrules_drop_to_definition() {
+    $(".rrules_rules_definition .rrules_rules_box").droppable({
+        accept: ".rrules_type_used",
+        drop: function(event, ui) {
+            var element = $("#" + ui.draggable.attr("id"));
+            ui.helper.remove();
+            rrules_remove_used_rule(element);
+        }
+    });
+}
+
+// Remove used Rule
+function rrules_remove_used_rule(element) {
+    var id = element.attr("id").replace("rrules_used_rule_id_", "");
+    $("#rrules_rule_id_" + id).addClass("new rrules_type_definition").removeClass("rrules_type_definition_used hidden");
+    $("#rrules_rule_id_" + id + " .rrules_used_hint").text("");
+    if (element.hasClass("selected") === true) {
+        // Clear Rule selection
+        $(".rrules_rule_item.selected").removeClass("selected");
+        // Reset Rule info panel
+        $(".rrules_rule_name_label").removeClass("active");
+    }
+    // Delete used Rule
+    element.remove();
+    rrules_rule_unhover();
+
+    var group_id = $(".rrules_group_label").attr("data-id");
+    // URL to Delete Rule from Group
+    $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveRuleFromRuleGroup?GroupID=" + group_id + "&RuleID=" + id, function(result) {
+    });
+}
+
+// Toggle group
+function rrules_group_info_toggle() {
+    $(".rrules_group_info").hide();
+    $(".rrules_group_edit").show();
+}
+
+// Load email functions
+function rrules_email_functions() {
+    // Load the email alerts
+    rrules_load_emails();
+
+    // Drop email to used area
+    rrules_drop_email_to_used();
+
+    // Drop email to definition area
+    // rrules_drop_email_to_definition();
+
+    // Submit add email
+    rrules_add_email_submit();
+}
+
+// Load email alerts
+function rrules_load_emails() {
+    // Get email alert details from the URL link
+    $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllEmails", function(emails) {
+        $.each(emails, function(key, value) {
+            // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
+            $("#rrules_email_sample").clone().attr({ "id": "rrules_email_id_" + value.ID, "data-email-id": value.ID, "data-email-name": value.Email}).addClass("new rrules_email_type_definition").removeClass("hidden").appendTo(".rrules_email_definition .rrules_email_box");
+            $("#rrules_email_id_" + value.ID + " .rrules_email_name").text(value.Email);
+        });
+
+        // Add new email button
+        rrules_add_email_button();
+
+        rrules_load_email_events();
+    });
+}
+
+// Load used emails
+function rrules_load_used_emails(used_emails) {
+    $.each(used_emails, function(key, id) {
+        var email_name = $("#rrules_email_id_" + id).attr("data-email-name");
+        $("#rrules_email_sample").clone().attr({ "id": "rrules_used_email_id_" + id, "data-email-id": id, "data-email-name": email_name }).addClass("new rrules_email_type_used").removeClass("hidden").appendTo(".rrules_email_used .rrules_email_box");
+        $("#rrules_used_email_id_" + id + " .rrules_email_name").text(email_name);
+
+        // Hide used email in definition
+        rrules_hide_used_email(id);
+    });
+
+    // Close loading overlay
+    rrules_close_loading();
+}
+
+// Hide used email in definition
+function rrules_hide_used_email(email_id) {
+    $("#rrules_email_id_" + email_id).hide();
+    //.removeClass("rrules_email_definition ui-draggable ui-draggable-handle").addClass("rrules_email_definition_used hidden");
+}
+
+// Add New Email Button
+function rrules_add_email_button() {
+    $("#rrules_email_sample").clone().addClass("add_new_email").removeClass("hidden").empty().appendTo(".rrules_email_box.sortable4");
+    $(".add_new_email").append('<i class="fa fa-plus-circle" aria-hidden="true"></i>').off();
+    $(".add_new_email").on("click", function() {$('#add_email_modal').modal('show');});
+
+    $('#add_email_modal').on('show.bs.modal', function() {
+        $("#add_email_modal input").val("");
+     });
+}
+
+// Load Email events
+function rrules_load_email_events() {
+    // Clear existing events
+    $(".rrules_email_item.new").off();
+    $(".rrules_email_item.new .rrules_email_delete").off();
+
+    // Delete Email from used Email
+    $(".rrules_email_used .rrules_email_item.new").on("click", function(event) {
+        // Stop Rule selection
+        event.stopPropagation();
+
+        var element = $(this).closest(".rrules_email_item");
+        // rrules_remove_used_email(element);
+    });
+
+    // Delete email from email definition
+    $(".rrules_email_definition .rrules_email_item.new .rrules_email_delete").on("click", function(event) {
+        // Stop Rule selection
+        event.stopPropagation();
+
+        var element = $(this).closest(".rrules_email_item");
+        var email_id = element.attr("data-email-id");
+
+        $("#dialog_modal").modal();
+        $("#dialog_modal .modal-body").text("Are you sure you want to delete this Email Alert?");
+
+        $("#dialog_modal .btn_yes").off();
+        $("#dialog_modal .btn_yes").on("click", function() {
+            rrules_show_loading(0,1);
+            // Delete Email
+            $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveEmail?EmailID=" + email_id).always(function(data) {
+                $('#dialog_modal').modal('hide');
+                if(data.responseText === "Ok") {
+                    element.remove();
+                    toastr.success('Email Successfully Deleted.', 'Success Alert', {});
+                }
+                rrules_close_loading();
+            });
+        });
+    });
+
+    // Remove class .new from New items
+    $(".new").removeClass("new");
+}
+
+// Drop email to used area
+function rrules_drop_email_to_used() {
+    $(".rrules_email_used .rrules_email_box").droppable({
+        accept: ".rrules_email_type_definition",
+        drop: function(event, ui) {
+            if($(ui.helper).hasClass("add_new_email") === false) {
+                var email_id = $(ui.helper).attr("id").replace("rrules_email_id_", "");
+                $(ui.helper).clone().attr("id", "rrules_used_email_id_" + email_id).addClass("new rrules_email_type_used").removeClass("rrules_email_type_definition ui-draggable ui-draggable-handle ui-draggable-dragging").removeAttr("style").appendTo($(this));
+                $(ui.helper).remove();
+
+                // Hide used email in definition
+                //rrules_hide_used_email(email_id);
+
+                // Load Rule events
+                rrules_load_email_events();
+
+                var group_id = $(".rrules_group_label").attr("data-id");
+                // URL to Insert Rule to Group
+                //$.getJSON("https://tbc.etracinc.com:248/AIS/AddNewRuleToRuleGroup?GroupID=" + group_id + "&RuleID=" + email_id + "&Order=2", function(result) {
+                //});
+            }
+        }
+    });
+}
+
+// Remove used email
+function rrules_remove_used_email(element) {
+    var id = element.attr("id").replace("rrules_used_email_id_", "");
+    $("#rrules_email_id_" + id).addClass("new rrules_email_definition").removeClass("rrules_email_definition_used hidden");
+    $("#rrules_email_id_" + id + " .rrules_used_hint").text("");
+
+    // Delete used email
+    element.remove();
+
+    var group_id = $(".rrules_group_label").attr("data-id");
+    // URL to Delete email from Group
+    $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveEmailFromRuleGroup?GroupID=" + group_id + "&emailID=" + id, function(result) {
+    });
+}
+
 // Submit add email button
 function rrules_add_email_submit() {
     $("#add_email_modal .btn_submit").off();
     $("#add_email_modal .btn_submit").on("click", function() {
-
         var toastr_msg;
         var new_email = $("#add_email_modal input.email_id").val();
 
@@ -805,6 +821,38 @@ function rrules_add_email_submit() {
             toastr.error(toastr_msg, 'Error Alert', {});
         }
     });
+}
+
+// Initiate the draggable elements
+function rrules_init_sortable() {
+    $(".sortable1, .sortable2").sortable({
+        revert: true,
+        connectWith: ".sortable_rules",
+        cancel: ".add_new_rule",
+        helper: "clone"
+    });
+
+    $(".sortable3, .sortable4").sortable({
+        revert: true,
+        connectWith: ".sortable_emails",
+        cancel: ".add_new_email",
+        helper: "clone"
+    });
+}
+
+// Show loading overlay
+function rrules_show_loading(load_count, opacity) {
+    loading_count = load_count;
+    $(".loader").show();
+    $(".loading_overlay").css({"opacity": 1});
+}
+
+// Close loading overlay
+function rrules_close_loading() {
+    loading_count--;
+    if(loading_count < 1) {
+        $(".loader").css({"opacity": 1}).fadeOut();
+    }
 }
 
 // Toaster alert messages

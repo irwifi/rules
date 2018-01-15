@@ -379,7 +379,7 @@
     overflow: auto;
   }
 
-    .rrules_email_item {
+  .rrules_email_item {
     display: block;
     margin: 8px;
     padding: 8px 20px;
@@ -392,6 +392,14 @@
     font-size: 18px;
     cursor: move;
     text-align: center;
+  }
+
+  .rrules_email_used .rrules_email_item {
+    background: #155ed0;
+  }
+
+  .rrules_email_used .rrules_email_item:hover{
+    background: #063988;
   }
 
   .rrules_email_name {
@@ -430,7 +438,7 @@
     font-size: 40px;
     line-height: 48px;
     color: #85c793;
-}
+  }
 
   .rrules_email_definition .rrules_email_item.add_new_email:hover {
     font-size: 50px;
