@@ -1,4 +1,4 @@
-var default_group = 1, loading_count = 0;
+var gid = 0, loading_count = 0;
 
 $(function() {
     // Load Rule functions
@@ -13,8 +13,8 @@ $(function() {
 
 // Load rule functions
 function rrules_rule_functions() {
-    // Load the rules,  Default Group Id = 1
-    rrules_load_rules(true, default_group);
+    // Load the rules
+    rrules_load_rules(true, gid);
 
     // Drop Rules to used rule area
     rrules_drop_to_used();
@@ -26,6 +26,27 @@ function rrules_rule_functions() {
     rrules_add_edit_rule();
 }
 
+// Load the rules
+function rrules_load_rules(first_load, group_id) {
+    // Load Rule Group list
+    rrules_load_group_list(group_id);
+
+    // Show loading overlay
+    rrules_show_loading(2, 1)
+
+    // Get Rule details from the URL link
+    $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRules", function(rules) {
+        $.each(rules, function(key, value) {
+            // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
+            $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-id": value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
+            $("#rrules_rule_id_" + value.ID + " .rrules_rule_name").text(value.Name);
+        });
+
+        // Load the rule group
+        rrules_load_rule_group(first_load, group_id);
+    });
+}
+
 // Load Rule Group list
 function rrules_load_group_list(group_id) {
     $(".rrules_group_list_panel").hide();
@@ -34,7 +55,13 @@ function rrules_load_group_list(group_id) {
         // Get Rule Groups from the URL link
         $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRuleGroups", function(groups) {
             $.each(groups, function(key, value) {
-                if(value.ID === group_id) {active = ' class="active"'};
+                if(group_id === 0) {
+                    group_id = value.ID;
+                    gid = group_id;
+                }
+                if(value.ID === group_id) {
+                    active = ' class="active"';
+                }
                 $(".rrules_group_list").append("<div data-id='" + value.ID + "'" + active + ">" + value.Name + "</div>");
                 active = "";
             });
@@ -59,29 +86,11 @@ function rrules_reload_group(group_id) {
     rrules_load_rules(false, group_id);
 }
 
-// Load the rules
-function rrules_load_rules(first_load, group_id) {
-    // Load Rule Group list
-    rrules_load_group_list(group_id);
-
-    // Show loading overlay
-    rrules_show_loading(2, 1)
-
-    // Get Rule details from the URL link
-    $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRules", function(rules) {
-        $.each(rules, function(key, value) {
-            // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
-            $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-id": value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
-            $("#rrules_rule_id_" + value.ID + " .rrules_rule_name").text(value.Name);
-        });
-
-        // Load the rule group
-        rrules_load_rule_group(first_load, group_id);
-    });
-}
-
 // Load the rule group
 function rrules_load_rule_group(first_load, group_id) {
+        if(first_load === true) {
+            group_id = gid;
+        }
     // Load Rule Group details
     $.getJSON("https://tbc.etracinc.com:248/AIS/GetRuleGroupInfo?GroupID=" + group_id, function(data) {
         // Get Rule Group Severity from the URL link
@@ -352,7 +361,7 @@ function rrules_add_edit_group() {
                     // Add new Rule Group
                     $(".rrules_group_edit").removeClass("add_new");
 
-                    var new_id = default_group;
+                    var new_id;
                     $.getJSON("https://tbc.etracinc.com:248/AIS/CreateNewRuleGroup", function(data) {
                         new_id = data.NewIndex;
                          $.getJSON("https://tbc.etracinc.com:248/ais/updaterulegroupname?GroupID=" + new_id + "&Name=" + group_name + "&Severity=" + group_severity, function(result) { });
@@ -394,7 +403,7 @@ function rrules_group_delete() {
 
         $('#dialog_modal').modal('hide');
         $(".rrules_group_list div.active").remove();
-        rrules_reload_group(default_group);
+        rrules_reload_group(0);
         toastr.success('Rule Group Successfully Deleted.', 'Success Alert', {});
     });
 }
