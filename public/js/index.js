@@ -43,7 +43,7 @@ function rrules_load_rules(first_load, group_id) {
         });
 
         // Load the rule group
-        rrules_load_rule_group(first_load, group_id);
+        setTimeout(rrules_load_rule_group, 100, first_load, group_id);
     });
 }
 
@@ -81,16 +81,20 @@ function rrules_reload_group(group_id) {
     $(".rrules_group_list div.active").removeClass("active");
     $(".rrules_group_list div[data-id='"+group_id+"']").addClass("active");
     $(".rrules_rules_box div:not(.rrules_rules_title)").remove();
+    $(".rrules_email_box div:not(.rrules_email_title)").remove();
     $(".rrules_group_severity select").empty(); // so that same options are not added every time
-    // Load the rules of Group
+    // Load the rules
     rrules_load_rules(false, group_id);
+    // Load emails
+    rrules_load_emails();
 }
 
 // Load the rule group
 function rrules_load_rule_group(first_load, group_id) {
-        if(first_load === true) {
-            group_id = gid;
-        }
+    if(first_load === true) {
+        group_id = gid;
+    }
+
     // Load Rule Group details
     $.getJSON("https://tbc.etracinc.com:248/AIS/GetRuleGroupInfo?GroupID=" + group_id, function(data) {
         // Get Rule Group Severity from the URL link
