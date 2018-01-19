@@ -40,6 +40,9 @@ function rrules_load_rules(first_load, group_id) {
             // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
             $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-id": value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
             $("#rrules_rule_id_" + value.ID + " .rrules_rule_name").text(value.Name);
+            if(value.Locked === 1) {
+                $("#rrules_rule_id_" + value.ID + " .rrules_rule_lock").show();
+            }
         });
 
         // Load the rule group
@@ -213,48 +216,67 @@ function rrules_load_rules_events() {
 
     // Delete Rule from used Rule
     $(".rrules_rules_used .rrules_rule_item.new .rrules_rule_delete").on("click", function(event) {
-        // Stop Rule selection
-        event.stopPropagation();
+        if($(".rrules_rules_area").hasClass("locked") === false) {
+            // Stop Rule selection
+            event.stopPropagation();
 
-        var element = $(this).closest(".rrules_rule_item");
-        rrules_remove_used_rule(element);
+            var element = $(this).closest(".rrules_rule_item");
+            rrules_remove_used_rule(element);
+        }
     });
 
     // Delete Rule from Rule definition
     $(".rrules_rules_definition  .rrules_rule_item.new .rrules_rule_delete").on("click", function(event) {
-        // Stop Rule selection
-        event.stopPropagation();
+        if($(".rrules_rules_area").hasClass("locked") === false) {
+            // Stop Rule selection
+            event.stopPropagation();
 
-        var element = $(this).closest(".rrules_rule_item");
-        var rule_id = element.attr("data-rule-id");
+            var element = $(this).closest(".rrules_rule_item");
+            var rule_id = element.attr("data-rule-id");
 
-        $("#dialog_modal").modal();
-        $("#dialog_modal .modal-body").text("Are you sure you want to delete this Rule?");
+            $("#dialog_modal").modal();
+            $("#dialog_modal .modal-body").text("Are you sure you want to delete this Rule?");
 
-        $("#dialog_modal .btn_yes").off();
-        $("#dialog_modal .btn_yes").on("click", function() {
-            rrules_show_loading(0,1);
-            // Delete Rule Groups
-            $.getJSON("https://tbc.etracinc.com:248/ais/removerule?RuleID=" + rule_id).always(function(data) {
-                $('#dialog_modal').modal('hide');
-                if(data.responseText === "Ok") {
-                    element.remove();
-                    if (element.hasClass("selected") === true) {
-                        // Reset Rule info panel
-                        $(".rrules_rule_name_label").removeClass("active");
+            $("#dialog_modal .btn_yes").off();
+            $("#dialog_modal .btn_yes").on("click", function() {
+                rrules_show_loading(0,1);
+                // Delete Rule Groups
+                $.getJSON("https://tbc.etracinc.com:248/ais/removerule?RuleID=" + rule_id).always(function(data) {
+                    $('#dialog_modal').modal('hide');
+                    if(data.responseText === "Ok") {
+                        element.remove();
+                        if (element.hasClass("selected") === true) {
+                            // Reset Rule info panel
+                            $(".rrules_rule_name_label").removeClass("active");
+                        }
+                        rrules_rule_unhover();
+                        toastr.success('Rule Successfully Deleted.', 'Success Alert', {});
+                    } else {
+                        toastr.error('Rule cannot be deleted because it is in use by other Group.', 'Error Alert', {});
                     }
-                    rrules_rule_unhover();
-                    toastr.success('Rule Successfully Deleted.', 'Success Alert', {});
-                } else {
-                    toastr.error('Rule cannot be deleted because it is in use by other Group.', 'Error Alert', {});
-                }
-                rrules_close_loading();
+                    rrules_close_loading();
+                });
             });
-        });
+        }
     });
 
     // Remove class .new from New items
     $(".new").removeClass("new");
+}
+
+// Lock Toggle
+function rrules_lock_toggle(action) {
+    var locked_state = $(".rrules_group_info_locked").hasClass("group_locked");
+    var locked_check = true;
+    if(action === "hover") {locked_check = !locked_check;}
+
+    if(locked_state === locked_check) {
+        $(".rrules_group_info_locked .lock_locked").show();
+        $(".rrules_group_info_locked .lock_unlocked").hide();
+    } else {
+        $(".rrules_group_info_locked .lock_locked").hide();
+        $(".rrules_group_info_locked .lock_unlocked").show();
+    }
 }
 
 // Load Rule Group events
@@ -264,8 +286,12 @@ function rrules_group_events() {
 
     // Group Lock hover, unhover
     $(".rrules_group_info_locked").hover(
-        function() {$(".rrules_group_info_locked i").toggle();},
-        function() {$(".rrules_group_info_locked i").toggle();}
+        function() {
+            rrules_lock_toggle("hover");
+        },
+        function() {
+            rrules_lock_toggle("unhover");
+        }
     );
 
     // Lock click
@@ -306,15 +332,15 @@ function rrules_group_lock_unlock(action) {
     $.getJSON("https://tbc.etracinc.com:248/AIS/updateRuleGroupLocked?GroupID=" + group_id + "&Locked=" + action, function(data) {
     });
 
-    $(".rrules_group_info_locked").toggleClass("group_unlocked, group_locked").hide();
-    $(".rrules_group_info_locked i").toggle();
-    setTimeout(function() {$(".rrules_group_info_locked").show();}, 500);
     $(".rrules_group_info_edit, .rrules_group_info_delete").toggle();
+
     if( action === 1 ) {
         $(".rrules_rules_area").addClass("locked");
+        $(".rrules_group_info_locked").removeClass("group_unlocked").addClass("group_locked");
         toastr_msg = 'Group Locked';
     } else {
         $(".rrules_rules_area").removeClass("locked");
+        $(".rrules_group_info_locked").removeClass("group_locked").addClass("group_unlocked");
         toastr_msg = 'Group Unlocked';
     }
 
@@ -501,6 +527,8 @@ function rrules_add_edit_rule() {
                 $(".rrules_edit_rule_value_row select").empty();
                 // Load all Rule types
                 rrules_load_rule_type(type_id, comparison_id, condition_id, condition);
+
+                $(".rrules_edit_lock").show();
             });
         } else {
             $("#edit_rule_modal .modal-title").text("Add New Rule");
@@ -791,38 +819,42 @@ function rrules_load_email_events() {
     $(".rrules_email_item.new .rrules_email_delete").off();
 
     // Delete Email from used Email
-    $(".rrules_email_used .rrules_email_item.new").on("click", function(event) {
-        // Stop Rule selection
-        event.stopPropagation();
+    $(".rrules_email_used .rrules_email_item.new .rrules_email_delete").on("click", function(event) {
+        if($(".rrules_rules_area").hasClass("locked") === false) {
+            // Stop Rule selection
+            event.stopPropagation();
 
-        var element = $(this).closest(".rrules_email_item");
-        rrules_remove_used_email(element);
+            var element = $(this).closest(".rrules_email_item");
+            rrules_remove_used_email(element);
+        }
     });
 
     // Delete email from email definition
     $(".rrules_email_definition .rrules_email_item.new .rrules_email_delete").on("click", function(event) {
-        // Stop Rule selection
-        event.stopPropagation();
+        if($(".rrules_rules_area").hasClass("locked") === false) {
+            // Stop Rule selection
+            event.stopPropagation();
 
-        var element = $(this).closest(".rrules_email_item");
-        var email_id = element.attr("data-email-id");
+            var element = $(this).closest(".rrules_email_item");
+            var email_id = element.attr("data-email-id");
 
-        $("#dialog_modal").modal();
-        $("#dialog_modal .modal-body").text("Are you sure you want to delete this Email Alert?");
+            $("#dialog_modal").modal();
+            $("#dialog_modal .modal-body").text("Are you sure you want to delete this Email Alert?");
 
-        $("#dialog_modal .btn_yes").off();
-        $("#dialog_modal .btn_yes").on("click", function() {
-            rrules_show_loading(0,1);
-            // Delete Email
-            $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveEmail?EmailID=" + email_id).always(function(data) {
-                $('#dialog_modal').modal('hide');
-                if(data.responseText === "Ok") {
-                    element.remove();
-                    toastr.success('Email Successfully Deleted.', 'Success Alert', {});
-                }
-                rrules_close_loading();
+            $("#dialog_modal .btn_yes").off();
+            $("#dialog_modal .btn_yes").on("click", function() {
+                rrules_show_loading(0,1);
+                // Delete Email
+                $.getJSON("https://tbc.etracinc.com:248/AIS/RemoveEmail?EmailID=" + email_id).always(function(data) {
+                    $('#dialog_modal').modal('hide');
+                    if(data.responseText === "Ok") {
+                        element.remove();
+                        toastr.success('Email Successfully Deleted.', 'Success Alert', {});
+                    }
+                    rrules_close_loading();
+                });
             });
-        });
+        }
     });
 
     // Remove class .new from New items
@@ -871,7 +903,7 @@ function rrules_drop_email_to_definition() {
 // Remove used email
 function rrules_remove_used_email(element) {
     var id = element.attr("id").replace("rrules_used_email_id_", "");
-    $("#rrules_email_id_" + id).addClass("new rrules_email_definition").removeClass("rrules_email_definition_used hidden");
+    $("#rrules_email_id_" + id).addClass("new rrules_email_type_definition").removeClass("rrules_email_type_used hidden");
     $("#rrules_email_id_" + id + " .rrules_used_hint").text("");
 
     // Delete used email

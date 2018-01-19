@@ -306,7 +306,7 @@
   .rrules_rule_item {
     display: block;
     margin: 8px;
-    padding: 8px 20px;
+    padding: 8px 12px;
     border: 1px solid #CCC;
     border-radius: 6px;
     background: #3cf;
@@ -344,7 +344,7 @@
 
   .rrules_rule_name {
     display: inline-block;
-    width: 305px;
+    width: 300px;
     height: 36px;
     vertical-align: text-bottom;
     text-align: left;
@@ -398,8 +398,24 @@
     background: #EEE;
   }
 
-  .rrules_rules_area.locked .rrules_rule_item, .rrules_rules_area.locked .rrules_email_item  {
+  .rrules_rules_area.locked .rrules_rule_item, .rrules_rules_area.locked .rrules_email_item {
     cursor:  not-allowed;
+  }
+
+  .rrules_rules_area.locked .rrules_rule_delete, .rrules_rules_area.locked .rrules_email_delete {
+    cursor:  not-allowed;
+    color:  #888;
+  }
+
+  .rrules_rules_area.locked .rrules_rule_delete:hover, .rrules_rules_area.locked .rrules_email_delete:hover {
+    color: #888;
+  }
+
+  .rrules_rule_lock {
+    display: none;
+    vertical-align: text-bottom;
+    line-height: 45px;
+    margin-left: 2px;
   }
 /* Rules Panel ====================================== END */
 
@@ -416,7 +432,7 @@
   .rrules_email_item {
     display: block;
     margin: 8px;
-    padding: 8px 20px;
+    padding: 8px 12px;
     border: 1px solid #CCC;
     border-radius: 6px;
     background: #266f36;
@@ -515,5 +531,28 @@
 
   .rrules_edit_rule_value_row input {
     display: none;
+  }
+
+  .rrules_edit_lock {
+    display: none;
+    margin-right:  5px;
+  }
+
+   .rrules_edit_lock i {
+    /* display: none; */
+    font-size: 24px;
+    padding: 3px 7px;
+    border:  2px solid;
+    border-radius: 20px;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  .rrules_edit_lock .lock_locked {
+    color:  #cb0000;
+  }
+
+  .rrules_edit_lock .lock_unlocked {
+    color:  #66bd33;
   }
 /* Add Edit Rules Modal ====================================== END */
