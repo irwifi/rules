@@ -105,6 +105,7 @@ function rrules_load_rule_group(first_load, group_id) {
         } else {
             $(".rrules_group_info_locked").removeClass("group_locked").addClass("group_unlocked");
             $(".rrules_group_info_edit, .rrules_group_info_delete").show();
+            $(".rrules_rules_area").removeClass("locked");
         }
 
         // Get Rule Group Severity from the URL link
@@ -152,6 +153,8 @@ function rrules_load_rule_group(first_load, group_id) {
         // Initiate the draggable elements
         if($(".rrules_rules_area").hasClass("locked") === false) {
             rrules_init_sortable();
+        } else {
+            $(".sortable1, .sortable2, .sortable3, .sortable4").sortable("destroy");
         }
     });
 }
@@ -308,9 +311,17 @@ function rrules_group_lock_unlock(action) {
     setTimeout(function() {$(".rrules_group_info_locked").show();}, 500);
     $(".rrules_group_info_edit, .rrules_group_info_delete").toggle();
     if( action === 1 ) {
+        $(".rrules_rules_area").addClass("locked");
         toastr_msg = 'Group Locked';
     } else {
+        $(".rrules_rules_area").removeClass("locked");
         toastr_msg = 'Group Unlocked';
+    }
+
+    if($(".rrules_rules_area").hasClass("locked") === false) {
+        rrules_init_sortable();
+    } else {
+        $(".sortable1, .sortable2, .sortable3, .sortable4").sortable("destroy");
     }
 
     toastr.success(toastr_msg, 'Success Alert', {});
