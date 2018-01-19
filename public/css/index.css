@@ -388,6 +388,19 @@
     font-size: 50px;
     color: #266f36;
   }
+
+  .rrules_rules_area.locked .rrules_rules_box,
+  .rrules_rules_area.locked .rrules_rules_used,
+  .rrules_rules_area.locked .rrules_rules_definition,
+   .rrules_rules_area.locked .rrules_email_box,
+  .rrules_rules_area.locked .rrules_email_used,
+  .rrules_rules_area.locked .rrules_email_definition{
+    background: #EEE;
+  }
+
+  .rrules_rules_area.locked .rrules_rule_item, .rrules_rules_area.locked .rrules_email_item  {
+    cursor:  not-allowed;
+  }
 /* Rules Panel ====================================== END */
 
 /* Email Panel ====================================== START */

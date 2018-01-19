@@ -101,6 +101,7 @@ function rrules_load_rule_group(first_load, group_id) {
         if(data.Locked === 1) {
             $(".rrules_group_info_locked").removeClass("group_unlocked").addClass("group_locked");
             $(".rrules_group_info_edit, .rrules_group_info_delete").hide();
+            $(".rrules_rules_area").addClass("locked");
         } else {
             $(".rrules_group_info_locked").removeClass("group_locked").addClass("group_unlocked");
             $(".rrules_group_info_edit, .rrules_group_info_delete").show();
@@ -149,7 +150,9 @@ function rrules_load_rule_group(first_load, group_id) {
         rrules_load_email_events();
 
         // Initiate the draggable elements
-        rrules_init_sortable();
+        if($(".rrules_rules_area").hasClass("locked") === false) {
+            rrules_init_sortable();
+        }
     });
 }
 
