@@ -202,6 +202,27 @@
     color: #ffffff;
     cursor: pointer;
   }
+
+  .rrules_group_info_locked i {
+    display: none;
+    font-size: 28px;
+    padding: 3px 8px;
+    border:  2px solid;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+
+  .rrules_group_info_locked .lock_locked {
+    color:  #cb0000;
+  }
+
+  .rrules_group_info_locked .lock_unlocked {
+    color:  #66bd33;
+  }
+
+   .rrules_group_info_locked.group_locked .lock_locked, .rrules_group_info_locked.group_unlocked .lock_unlocked {
+    display: inline;
+  }
 /* Rule Group ====================================== END */
 
 /* Rules Info ====================================== START */

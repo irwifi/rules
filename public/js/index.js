@@ -97,6 +97,15 @@ function rrules_load_rule_group(first_load, group_id) {
 
     // Load Rule Group details
     $.getJSON("https://tbc.etracinc.com:248/AIS/GetRuleGroupInfo?GroupID=" + group_id, function(data) {
+        // Check locked status
+        if(data.Locked === 1) {
+            $(".rrules_group_info_locked").removeClass("group_unlocked").addClass("group_locked");
+            $(".rrules_group_info_edit, .rrules_group_info_delete").hide();
+        } else {
+            $(".rrules_group_info_locked").removeClass("group_locked").addClass("group_unlocked");
+            $(".rrules_group_info_edit, .rrules_group_info_delete").show();
+        }
+
         // Get Rule Group Severity from the URL link
         $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRuleSeverity", function(severity) {
             $.each(severity, function(key, value) {
@@ -247,6 +256,18 @@ function rrules_group_events() {
     // Select Rule Group from the dropdown
     $(".rrules_group_list div").on("click", function() {rrules_reload_group($(this).attr("data-id"));});
 
+    // Group Lock hover, unhover
+    $(".rrules_group_info_locked").hover(
+        function() {$(".rrules_group_info_locked i").toggle();},
+        function() {$(".rrules_group_info_locked i").toggle();}
+    );
+
+    // Lock click
+    $(".rrules_group_info_locked .lock_locked").on("click", function() {rrules_group_lock_unlock(1);});
+
+    // Unlock click
+    $(".rrules_group_info_locked .lock_unlocked").on("click", function() {rrules_group_lock_unlock(0);});
+
     // Edit Group button
     $(".rrules_group_info_edit input").on("click", rrules_group_info_toggle);
 
@@ -271,6 +292,25 @@ function rrules_group_events() {
     $(".rrules_group_list, .rrules_group_buttons").on("click", function() {
         $(".rrules_group_list_panel").hide();
     });
+}
+
+// Lock unlock group
+function rrules_group_lock_unlock(action) {
+    var group_id = $(".rrules_group_label").attr("data-id");
+    $.getJSON("https://tbc.etracinc.com:248/AIS/updateRuleGroupLocked?GroupID=" + group_id + "&Locked=" + action, function(data) {
+    });
+
+    $(".rrules_group_info_locked").toggleClass("group_unlocked, group_locked").hide();
+    $(".rrules_group_info_locked i").toggle();
+    setTimeout(function() {$(".rrules_group_info_locked").show();}, 500);
+    $(".rrules_group_info_edit, .rrules_group_info_delete").toggle();
+    if( action === 1 ) {
+        toastr_msg = 'Group Locked';
+    } else {
+        toastr_msg = 'Group Unlocked';
+    }
+
+    toastr.success(toastr_msg, 'Success Alert', {});
 }
 
 // Hover event on Rule item
@@ -844,12 +884,12 @@ function rrules_add_email_submit() {
             // Add New Rule
             $.getJSON("https://tbc.etracinc.com:248/AIS/CreateNewEmail?Email=" + new_email, function(data) {});
 
-            $(".rrules_email_definition .rrules_email_box").empty();
             $('#add_email_modal').modal('hide');
             toastr_msg = 'New Email Alert Added Successfully.';
             toastr.success(toastr_msg, 'Success Alert', {});
+            var current_group_id = $(".rrules_group_label").attr("data-id");
+            rrules_reload_group(current_group_id);
             rrules_close_loading();
-             rrules_load_emails();
         } else {
             toastr_msg = 'Invalid Email';
             toastr.error(toastr_msg, 'Error Alert', {});
