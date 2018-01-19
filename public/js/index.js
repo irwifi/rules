@@ -170,6 +170,12 @@ function rrules_load_used_rules(used_rules) {
         $("#rrules_rule_sample").clone().attr({ "id": "rrules_used_rule_id_" + id, "data-rule-id": id, "data-rule-name": rule_name, "data-rule-desc": rule_desc }).addClass("new rrules_type_used").removeClass("hidden").appendTo(".rrules_rules_used .rrules_rules_box");
         $("#rrules_used_rule_id_" + id + " .rrules_rule_name").text(rule_name);
 
+        if($("#rrules_rule_id_" + id + " .rrules_rule_lock").is(":visible") === true) {
+            $("#rrules_used_rule_id_" + id + " .rrules_rule_lock").show();
+        } else {
+            $("#rrules_used_rule_id_" + id + " .rrules_rule_lock").hide();
+        }
+
         // Mark used Rule in definition
         // rrules_mark_used_rule(id);
 
@@ -265,17 +271,23 @@ function rrules_load_rules_events() {
 }
 
 // Lock Toggle
-function rrules_lock_toggle(action) {
-    var locked_state = $(".rrules_group_info_locked").hasClass("group_locked");
+function rrules_lock_toggle(location, action) {
+    var locked_state, class_name
     var locked_check = true;
     if(action === "hover") {locked_check = !locked_check;}
-
-    if(locked_state === locked_check) {
-        $(".rrules_group_info_locked .lock_locked").show();
-        $(".rrules_group_info_locked .lock_unlocked").hide();
+    if(location === "group") {
+        class_name = ".rrules_group_info_locked";
+        locked_state = $(class_name).hasClass("group_locked");
     } else {
-        $(".rrules_group_info_locked .lock_locked").hide();
-        $(".rrules_group_info_locked .lock_unlocked").show();
+        class_name = ".rrules_edit_lock";
+        locked_state = $(class_name).hasClass("rule_locked");
+    }
+    if(locked_state === locked_check) {
+        $(class_name + " .lock_locked").show();
+        $(class_name + " .lock_unlocked").hide();
+    } else {
+        $(class_name + " .lock_locked").hide();
+        $(class_name + " .lock_unlocked").show();
     }
 }
 
@@ -287,10 +299,10 @@ function rrules_group_events() {
     // Group Lock hover, unhover
     $(".rrules_group_info_locked").hover(
         function() {
-            rrules_lock_toggle("hover");
+            rrules_lock_toggle("group", "hover");
         },
         function() {
-            rrules_lock_toggle("unhover");
+            rrules_lock_toggle("group", "unhover");
         }
     );
 
@@ -324,6 +336,37 @@ function rrules_group_events() {
     $(".rrules_group_list, .rrules_group_buttons").on("click", function() {
         $(".rrules_group_list_panel").hide();
     });
+}
+
+// Lock unlock Groupand Rule
+function rrules_rule_lock_unlock(rule_id, action) {
+    if(action === "lock") {
+        action = 1;
+    } else {
+        action = 0;
+    }
+    $.getJSON("https://tbc.etracinc.com:248/AIS/updateRuleLocked?RuleID=" + rule_id + "&Locked=" + action, function(data) {
+    });
+
+    if( action === 1 ) {
+        $(".rrules_edit_lock").removeClass("rule_unlocked").addClass("rule_locked");
+        $(".rrules_edit_lock .lock_locked").show();
+        $(".rrules_edit_lock .lock_unlocked").hide();
+        $("#edit_rule_modal input, #edit_rule_modal select, #edit_rule_modal .btn_submit").attr("disabled", "disabled");
+        $("#rrules_rule_id_" + rule_id + " .rrules_rule_lock").show();
+        $("#rrules_used_rule_id_" + rule_id + " .rrules_rule_lock").show();
+        toastr_msg = 'Rule Locked';
+    } else {
+        $(".rrules_edit_lock").removeClass("rule_locked").addClass("rule_unlocked");
+        $(".rrules_edit_lock .lock_locked").hide();
+        $(".rrules_edit_lock .lock_unlocked").show();
+        $("#edit_rule_modal input, #edit_rule_modal select, #edit_rule_modal .btn_submit").removeAttr("disabled");
+        $("#rrules_rule_id_" + rule_id + " .rrules_rule_lock").hide();
+        $("#rrules_used_rule_id_" + rule_id + " .rrules_rule_lock").hide();
+        toastr_msg = 'Rule Unlocked';
+    }
+
+    toastr.success(toastr_msg, 'Success Alert', {});
 }
 
 // Lock unlock group
@@ -529,6 +572,35 @@ function rrules_add_edit_rule() {
                 rrules_load_rule_type(type_id, comparison_id, condition_id, condition);
 
                 $(".rrules_edit_lock").show();
+                if(data.Locked === 1)  {
+                    $(".rrules_edit_lock").removeClass("rule_unlocked").addClass("rule_locked");
+                    $(".rrules_edit_lock .lock_locked").show();
+                    $(".rrules_edit_lock .lock_unlocked").hide();
+                    $("#edit_rule_modal input, #edit_rule_modal select, #edit_rule_modal .btn_submit").attr("disabled", "disabled");
+                } else {
+                    $(".rrules_edit_lock").removeClass("rule_locked").addClass("rule_unlocked");
+                    $(".rrules_edit_lock .lock_locked").hide();
+                    $(".rrules_edit_lock .lock_unlocked").show();
+                    $("#edit_rule_modal input, #edit_rule_modal select, #edit_rule_modal .btn_submit").removeAttr("disabled");
+                }
+
+                // Group Lock hover, unhover
+                $(".rrules_edit_lock").hover(
+                    function() {
+                        rrules_lock_toggle("rule", "hover");
+                    },
+                    function() {
+                        rrules_lock_toggle("rule", "unhover");
+                    }
+                );
+
+                // Lock click
+                $(".rrules_edit_lock .lock_locked").off();
+                $(".rrules_edit_lock .lock_locked").on("click", function() {rrules_rule_lock_unlock(rule_id, "lock");});
+
+                // Unlock click
+                $(".rrules_edit_lock .lock_unlocked").off();
+                $(".rrules_edit_lock .lock_unlocked").on("click", function() {rrules_rule_lock_unlock(rule_id, "unlock");});
             });
         } else {
             $("#edit_rule_modal .modal-title").text("Add New Rule");

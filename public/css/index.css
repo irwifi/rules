@@ -344,7 +344,7 @@
 
   .rrules_rule_name {
     display: inline-block;
-    width: 300px;
+    width: 260px;
     height: 36px;
     vertical-align: text-bottom;
     text-align: left;
@@ -454,7 +454,7 @@
 
   .rrules_email_name {
     display: inline-block;
-    width: 355px;
+    width: 320px;
     height: 36px;
     vertical-align: text-bottom;
     text-align: left;
@@ -539,7 +539,7 @@
   }
 
    .rrules_edit_lock i {
-    /* display: none; */
+    display: none;
     font-size: 24px;
     padding: 3px 7px;
     border:  2px solid;
