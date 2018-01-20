@@ -36,17 +36,21 @@ function rrules_load_rules(first_load, group_id) {
 
     // Get Rule details from the URL link
     $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRules", function(rules) {
+        var counter = 0;
         $.each(rules, function(key, value) {
             // Load Rule definitions, Clone each Rule item and apply Id and Name to that item
             $("#rrules_rule_sample").clone().attr({ "id": "rrules_rule_id_" + value.ID, "data-rule-id": value.ID, "data-rule-name": value.Name, "data-rule-desc": value.Description }).addClass("new rrules_type_definition").removeClass("hidden").appendTo(".rrules_rules_definition .rrules_rules_box");
             $("#rrules_rule_id_" + value.ID + " .rrules_rule_name").text(value.Name);
             if(value.Locked === 1) {
                 $("#rrules_rule_id_" + value.ID + " .rrules_rule_lock").show();
+                $("#rrules_rule_id_" + value.ID).addClass("locked");
+            }
+            counter++;
+            if(counter === rules.length) {
+                // Load the rule group
+                setTimeout(rrules_load_rule_group, 100, first_load, group_id );
             }
         });
-
-        // Load the rule group
-        setTimeout(rrules_load_rule_group, 100, first_load, group_id);
     });
 }
 
@@ -58,8 +62,8 @@ function rrules_load_group_list(group_id) {
         // Get Rule Groups from the URL link
         $.getJSON("https://tbc.etracinc.com:248/AIS/GetAllRuleGroups", function(groups) {
             $.each(groups, function(key, value) {
-                if(group_id === 0) {
-                    group_id = value.ID;
+                if(gid === 0) {
+                    if(group_id === 0) {group_id = value.ID;}
                     gid = group_id;
                 }
                 if(value.ID === group_id) {
@@ -157,6 +161,7 @@ function rrules_load_rule_group(first_load, group_id) {
         if($(".rrules_rules_area").hasClass("locked") === false) {
             rrules_init_sortable();
         } else {
+            $(".sortable1, .sortable2, .sortable3, .sortable4").sortable();
             $(".sortable1, .sortable2, .sortable3, .sortable4").sortable("destroy");
         }
     });
@@ -233,12 +238,12 @@ function rrules_load_rules_events() {
 
     // Delete Rule from Rule definition
     $(".rrules_rules_definition  .rrules_rule_item.new .rrules_rule_delete").on("click", function(event) {
-        if($(".rrules_rules_area").hasClass("locked") === false) {
+        var element = $(this).closest(".rrules_rule_item");
+        var rule_id = element.attr("data-rule-id");
+
+        if($(".rrules_rules_area").hasClass("locked") === false && $("#rrules_rule_id_"+rule_id).hasClass("locked") === false) {
             // Stop Rule selection
             event.stopPropagation();
-
-            var element = $(this).closest(".rrules_rule_item");
-            var rule_id = element.attr("data-rule-id");
 
             $("#dialog_modal").modal();
             $("#dialog_modal .modal-body").text("Are you sure you want to delete this Rule?");
@@ -258,7 +263,7 @@ function rrules_load_rules_events() {
                         rrules_rule_unhover();
                         toastr.success('Rule Successfully Deleted.', 'Success Alert', {});
                     } else {
-                        toastr.error('Rule cannot be deleted because it is in use by other Group.', 'Error Alert', {});
+                        toastr.error('Rule cannot be deleted because it is in use by other Rule.', 'Error Alert', {});
                     }
                     rrules_close_loading();
                 });
@@ -267,7 +272,7 @@ function rrules_load_rules_events() {
     });
 
     // Remove class .new from New items
-    $(".new").removeClass("new");
+    $(".rrules_rule_item.new").removeClass("new");
 }
 
 // Lock Toggle
@@ -355,6 +360,7 @@ function rrules_rule_lock_unlock(rule_id, action) {
         $("#edit_rule_modal input, #edit_rule_modal select, #edit_rule_modal .btn_submit").attr("disabled", "disabled");
         $("#rrules_rule_id_" + rule_id + " .rrules_rule_lock").show();
         $("#rrules_used_rule_id_" + rule_id + " .rrules_rule_lock").show();
+        $("#rrules_rule_id_" + rule_id).addClass("locked");
         toastr_msg = 'Rule Locked';
     } else {
         $(".rrules_edit_lock").removeClass("rule_locked").addClass("rule_unlocked");
@@ -363,6 +369,7 @@ function rrules_rule_lock_unlock(rule_id, action) {
         $("#edit_rule_modal input, #edit_rule_modal select, #edit_rule_modal .btn_submit").removeAttr("disabled");
         $("#rrules_rule_id_" + rule_id + " .rrules_rule_lock").hide();
         $("#rrules_used_rule_id_" + rule_id + " .rrules_rule_lock").hide();
+        $("#rrules_rule_id_" + rule_id).removeClass("locked");
         toastr_msg = 'Rule Unlocked';
     }
 
@@ -607,6 +614,10 @@ function rrules_add_edit_rule() {
             $(".rrules_edit_rule_name_row input").removeAttr("data-rule-id");
             $(".rrules_edit_rule_value_row select").empty();
             $(".rrules_edit_rule_value_row input").val("");
+
+                $(".rrules_edit_lock").removeClass("rule_locked").addClass("rule_unlocked").hide();;
+                $("#edit_rule_modal input, #edit_rule_modal select, #edit_rule_modal .btn_submit").removeAttr("disabled");
+
             // Load all Rule types
             rrules_load_rule_type(null, comparison_id, condition_id, condition);
         }
@@ -930,7 +941,7 @@ function rrules_load_email_events() {
     });
 
     // Remove class .new from New items
-    $(".new").removeClass("new");
+    $(".rrules_email_item.new").removeClass("new");
 }
 
 // Drop email to used area

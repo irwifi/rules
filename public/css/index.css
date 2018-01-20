@@ -402,12 +402,12 @@
     cursor:  not-allowed;
   }
 
-  .rrules_rules_area.locked .rrules_rule_delete, .rrules_rules_area.locked .rrules_email_delete {
+  .rrules_rules_area.locked .rrules_rule_delete, .rrules_rules_area.locked .rrules_email_delete, .rrules_type_definition.locked .rrules_rule_delete {
     cursor:  not-allowed;
     color:  #888;
   }
 
-  .rrules_rules_area.locked .rrules_rule_delete:hover, .rrules_rules_area.locked .rrules_email_delete:hover {
+  .rrules_rules_area.locked .rrules_rule_delete:hover, .rrules_rules_area.locked .rrules_email_delete:hover, .rrules_type_definition.locked .rrules_rule_delete:hover {
     color: #888;
   }
 
